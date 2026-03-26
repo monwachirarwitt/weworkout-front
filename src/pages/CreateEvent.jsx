@@ -16,7 +16,7 @@ function CreateEvent() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       // 💥 ไฮไลท์การแก้บั๊ก: แปลงชนิดข้อมูลให้ตรงใจ Prisma ก่อนส่ง!
@@ -37,67 +37,125 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '40px auto', backgroundColor: 'var(--bg-surface)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-      <h2 style={{ color: 'var(--color-primary)', textAlign: 'center', marginBottom: '20px' }}>สร้างตี้กีฬาใหม่ 🏃‍♂️</h2>
+    // 🎨 โซนพื้นหลังสุดอลังการ (Gradient + Floating Sport Cards)
+    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 flex items-center justify-center py-12 px-4 relative overflow-hidden font-body">
       
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <div>
-          <label style={{ fontWeight: 'bold', color: 'var(--color-neutral)' }}>ชื่อตี้/กิจกรรม</label>
-          <input type="text" name="title" required onChange={handleChange} placeholder="เช่น เตะบอลหญ้าเทียมขำๆ" style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }} />
-        </div>
+      {/* สติกเกอร์/การ์ดตกแต่ง ซ้าย (บาสเกตบอล) - ซ่อนในจอมือถือ */}
+      <div className="absolute top-10 left-10 lg:left-32 w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden rotate-[-12deg] opacity-70 shadow-2xl pointer-events-none hidden md:block border-4 border-white/50">
+        <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=600&auto=format&fit=crop" alt="Basketball" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-secondary/40 to-transparent mix-blend-multiply"></div>
+      </div>
 
-        <div>
-          <label style={{ fontWeight: 'bold', color: 'var(--color-neutral)' }}>รายละเอียด</label>
-          <textarea name="description" rows="3" onChange={handleChange} placeholder="บอกรายละเอียดเพื่อนๆ หน่อย..." style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }}></textarea>
-        </div>
+      {/* สติกเกอร์/การ์ดตกแต่ง ขวา (วิ่ง) - ซ่อนในจอมือถือ */}
+      <div className="absolute bottom-10 right-10 lg:right-32 w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden rotate-[15deg] opacity-70 shadow-2xl pointer-events-none hidden md:block border-4 border-white/50">
+        <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=600&auto=format&fit=crop" alt="Running" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent mix-blend-multiply"></div>
+      </div>
 
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <div style={{ flex: 1 }}>
-            <label style={{ fontWeight: 'bold', color: 'var(--color-neutral)' }}>ชื่อสถานที่</label>
-            <input type="text" name="locationName" required onChange={handleChange} style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }} />
+      {/* 📝 โซนกล่องฟอร์มหลัก (ดีไซน์เป๊ะตามรูปที่ 1 เน้นคลีนๆ ขาวๆ) */}
+      <div className="relative z-10 w-full max-w-[650px] bg-surface-container-lowest p-8 md:p-12 rounded-[2rem] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-outline-variant/20">
+        
+        <h2 className="text-3xl font-headline font-black text-primary text-center mb-8">สร้างตี้กีฬาใหม่ 🏃‍♂️</h2>
+        
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          
+          {/* แถวที่ 1: ชื่อตี้ */}
+          <div>
+            <label className="block font-bold text-on-background mb-1">ชื่อตี้/กิจกรรม</label>
+            <input 
+              type="text" name="title" required onChange={handleChange} 
+              placeholder="เช่น เตะบอลหญ้าเทียมขำๆ" 
+              className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+            />
           </div>
-          <div style={{ flex: 1 }}>
-            <label style={{ fontWeight: 'bold', color: 'var(--color-neutral)' }}>ลิงก์ Google Map</label>
-            <input type="url" name="locationUrl" required onChange={handleChange} style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }} />
-          </div>
-        </div>
 
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <div style={{ flex: 1 }}>
-            <label style={{ fontWeight: 'bold', color: 'var(--color-neutral)' }}>วันที่จัด</label>
-            <input type="date" name="eventDate" required onChange={handleChange} style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }} />
+          {/* แถวที่ 2: รายละเอียด */}
+          <div>
+            <label className="block font-bold text-on-background mb-1">รายละเอียด</label>
+            <textarea 
+              name="description" rows="3" onChange={handleChange} 
+              placeholder="บอกรายละเอียดเพื่อนๆ หน่อย..." 
+              className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+            ></textarea>
           </div>
-          <div style={{ flex: 1 }}>
-            <label style={{ fontWeight: 'bold', color: 'var(--color-neutral)' }}>เริ่มกี่โมง</label>
-            <input type="time" name="startTime" required onChange={handleChange} style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={{ fontWeight: 'bold', color: 'var(--color-neutral)' }}>ถึงกี่โมง</label>
-            <input type="time" name="endTime" required onChange={handleChange} style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }} />
-          </div>
-        </div>
 
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <div style={{ flex: 1 }}>
-            <label style={{ fontWeight: 'bold', color: 'var(--color-neutral)' }}>ชนิดกีฬา</label>
-            <select name="category" onChange={handleChange} style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }}>
-              <option value="Football">ฟุตบอล</option>
-              <option value="Badminton">แบดมินตัน</option>
-              <option value="Basketball">บาสเกตบอล</option>
-              <option value="Running">วิ่ง</option>
-            </select>
+          {/* แถวที่ 3: สถานที่ (แบ่ง 2 คอลัมน์) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block font-bold text-on-background mb-1">ชื่อสถานที่</label>
+              <input 
+                type="text" name="locationName" required onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-on-background mb-1">ลิงก์ Google Map</label>
+              <input 
+                type="url" name="locationUrl" required onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+              />
+            </div>
           </div>
-          <div style={{ flex: 1 }}>
-            <label style={{ fontWeight: 'bold', color: 'var(--color-neutral)' }}>รับกี่คน</label>
-            <input type="number" name="maxParticipants" required onChange={handleChange} min="2" placeholder="เช่น 10" style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid var(--border-color)', boxSizing: 'border-box' }} />
-          </div>
-        </div>
 
-        {/* ปุ่มสร้างตี้ ใช้สีส้ม Secondary จาก Figma! */}
-        <button type="submit" style={{ width: '100%', padding: '15px', marginTop: '10px', backgroundColor: 'var(--color-secondary)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>
-          สร้างตี้เลย!
-        </button>
-      </form>
+          {/* แถวที่ 4: เวลา (แบ่ง 3 คอลัมน์) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div>
+              <label className="block font-bold text-on-background mb-1">วันที่จัด</label>
+              <input 
+                type="date" name="eventDate" required onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-on-surface-variant" 
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-on-background mb-1">เริ่มกี่โมง</label>
+              <input 
+                type="time" name="startTime" required onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-on-surface-variant" 
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-on-background mb-1">ถึงกี่โมง</label>
+              <input 
+                type="time" name="endTime" required onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-on-surface-variant" 
+              />
+            </div>
+          </div>
+
+          {/* แถวที่ 5: กีฬา & จำนวนคน (แบ่ง 2 คอลัมน์) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block font-bold text-on-background mb-1">ชนิดกีฬา</label>
+              <select 
+                name="category" onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
+              >
+                <option value="Football">ฟุตบอล</option>
+                <option value="Badminton">แบดมินตัน</option>
+                <option value="Basketball">บาสเกตบอล</option>
+                <option value="Running">วิ่ง</option>
+              </select>
+            </div>
+            <div>
+              <label className="block font-bold text-on-background mb-1">รับกี่คน</label>
+              <input 
+                type="number" name="maxParticipants" required onChange={handleChange} min="2" 
+                placeholder="เช่น 10" 
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+              />
+            </div>
+          </div>
+
+          {/* ปุ่มสร้างตี้ */}
+          <button 
+            type="submit" 
+            className="w-full p-4 mt-6 bg-secondary text-white rounded-xl font-headline font-bold text-lg hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-secondary/30 transition-all"
+          >
+            สร้างตี้เลย!
+          </button>
+
+        </form>
+      </div>
     </div>
   );
 }
