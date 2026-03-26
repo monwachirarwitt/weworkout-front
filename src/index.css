@@ -1,0 +1,57 @@
+/* src/index.css */
+
+/* 💥 1. อัญเชิญพลัง Tailwind v4 และตั้งค่าสีของหน้า Login */
+@import "tailwindcss";
+
+@theme {
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #e6f6ff;
+  --color-primary: #006b5e;
+  --color-primary-container: #00a693;
+  --color-secondary: #ac3509;
+  --color-background: #f3faff;
+  --color-on-background: #071e27;
+  --color-on-surface-variant: #3c4946;
+  --color-outline: #6c7a76;
+  --color-outline-variant: #bbcac5;
+
+  --font-headline: "Lexend", sans-serif;
+  --font-body: "Manrope", sans-serif;
+}
+
+/* ======================================================== */
+/* 🛡️ 2. ของเดิมของคุณมล (เก็บไว้เลี้ยงหน้า Feed และหน้าอื่นๆ) */
+/* ======================================================== */
+
+:root {
+  /* โทนสีหลักจาก Kinetic Vitality 🎨 */
+  --color-primary: #00A693;   /* สีเขียว Teal หลัก */
+  --color-secondary: #FF7043; /* สีส้ม (ใช้กับปุ่มเน้นๆ เช่น Join/Create) */
+  --color-tertiary: #1B5E20;  /* สีเขียวเข้ม */
+  --color-neutral: #455A64;   /* สีเทาอมฟ้า (ใช้กับตัวอักษร) */
+
+  /* โทนสีพื้นหลัง (Light Theme) */
+  --bg-main: #F4F7F9;      /* สีพื้นหลังแอป (ฟ้าหม่นอ่อนๆ ดูสะอาด) */
+  --bg-surface: #FFFFFF;   /* สีพื้นหลังการ์ด/กล่อง */
+  --border-color: #E2E8F0; /* สีเส้นขอบ */
+
+  /* โทนสีตัวอักษร */
+  --text-main: #1A202C;    /* ตัวอักษรสีดำ/เทาเข้ม */
+  --text-muted: #455A64;   /* ตัวอักษรสีเทา (ใช้สี Neutral) */
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
