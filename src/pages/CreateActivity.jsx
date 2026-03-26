@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
 
-function CreateEvent() {
+function CreateActivity() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -38,12 +38,12 @@ function CreateEvent() {
 
   return (
     // 🎨 โซนพื้นหลังสุดอลังการ (Gradient + Floating Sport Cards)
-    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 flex items-center justify-center py-12 px-4 relative overflow-hidden font-body">
+    <div className="min-h-[calc(100vh-80px)] bg-linear-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 flex items-center justify-center py-12 px-4 relative overflow-hidden font-body">
       
       {/* สติกเกอร์/การ์ดตกแต่ง ซ้าย (บาสเกตบอล) - ซ่อนในจอมือถือ */}
       <div className="absolute top-10 left-10 lg:left-32 w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden rotate-[-12deg] opacity-70 shadow-2xl pointer-events-none hidden md:block border-4 border-white/50">
         <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=600&auto=format&fit=crop" alt="Basketball" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-secondary/40 to-transparent mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-secondary/40 to-transparent mix-blend-multiply"></div>
       </div>
 
       {/* สติกเกอร์/การ์ดตกแต่ง ขวา (วิ่ง) - ซ่อนในจอมือถือ */}
@@ -51,6 +51,8 @@ function CreateEvent() {
         <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=600&auto=format&fit=crop" alt="Running" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent mix-blend-multiply"></div>
       </div>
+
+      
 
       {/* 📝 โซนกล่องฟอร์มหลัก (ดีไซน์เป๊ะตามรูปที่ 1 เน้นคลีนๆ ขาวๆ) */}
       <div className="relative z-10 w-full max-w-[650px] bg-surface-container-lowest p-8 md:p-12 rounded-[2rem] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-outline-variant/20">
@@ -131,7 +133,7 @@ function CreateEvent() {
                 className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
               >
                 <option value="Football">ฟุตบอล</option>
-                <option value="Badminton">แบดมินตัน</option>
+                <option value="Badminton">ฟิตเนส</option>
                 <option value="Basketball">บาสเกตบอล</option>
                 <option value="Running">วิ่ง</option>
               </select>
@@ -160,4 +162,4 @@ function CreateEvent() {
   );
 }
 
-export default CreateEvent;
+export default CreateActivity

@@ -29,7 +29,7 @@ function Login() {
         <div className="absolute -bottom-[10%] -right-[5%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px]"></div>
       </div>
 
-      <main className="w-full max-w-[1728px] flex items-center justify-center">
+      <main className="w-full max-w-432 flex items-center justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 w-full max-w-6xl items-center gap-12">
           
           <div className="hidden lg:flex lg:col-span-7 flex-col pr-12 relative z-10">

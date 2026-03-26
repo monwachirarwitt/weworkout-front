@@ -12,7 +12,7 @@ function EventDetail() {
   const [newComment, setNewComment] = useState(''); 
   const [loading, setLoading] = useState(true);
 
-  // 🕵️‍♂️ ฟังก์ชันลับ: ถอดรหัส Token ดูว่าเราคือใคร (User ID)
+  //  ฟังก์ชันลับ: ถอดรหัส Token ดูว่าเราคือใคร (User ID)
   const getCurrentUserId = () => {
     if (!token) return null;
     try {
