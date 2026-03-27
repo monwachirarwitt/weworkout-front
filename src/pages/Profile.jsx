@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
-import { uploadImage } from '../utils/upload'; // 💥 1. Import ท่อส่งรูปของเราเข้ามา!
+import { uploadImage } from '../utils/upload'; 
 
 function Profile() {
   const [user, setUser] = useState({ name: '', email: '', profileImageUrl: '' });
@@ -19,10 +19,14 @@ function Profile() {
     }
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
+      
+      // 💥 ดึงรูปที่แอบจำไว้ในเครื่องมาใช้ (ถ้ามี)
+      const localImage = localStorage.getItem('myProfileImage'); 
+      
       setUser({
         name: payload.name || 'Athletic User',
         email: payload.email || 'user@example.com',
-        profileImageUrl: payload.profileImageUrl || '' 
+        profileImageUrl: localImage || payload.profileImageUrl || '' // 💥 ถ้ามีรูปในเครื่อง ให้ใช้ก่อนเลย!
       });
     } catch (e) {
       console.error("แกะ Token ไม่สำเร็จ");
@@ -43,15 +47,16 @@ function Profile() {
     setLoading(true);
 
     try {
-      // 💥 จุดที่ 2: ลบตัว i ข้างหน้าออก ให้เหลือแค่ profileImageUrl
       const profileImageUrl = await uploadImage(selectedFile);
       
-// 💥 กลับมาใช้ .patch และ /user/profile กุญแจดอกเดิมของเราครับ!
-      const response = await axios.patch('/user/profile', { profileImageUrl: profileImageUrl }, {
+      const response = await axios.put('/user/profile', { profileImageUrl: profileImageUrl }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       alert('📸 อัปเดตโปรไฟล์สำเร็จ!');
+      
+      // 💥 แอบจด URL รูปใหม่ลงใน LocalStorage ของเบราว์เซอร์!
+      localStorage.setItem('myProfileImage', profileImageUrl); 
       
       setUser({ ...user, profileImageUrl: profileImageUrl }); 
       setPreviewImage(null);

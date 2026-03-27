@@ -19,7 +19,7 @@ function CreateActivity() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // 💥 ไฮไลท์การแก้บั๊ก: แปลงชนิดข้อมูลให้ตรงใจ Prisma ก่อนส่ง!
+      //  ไฮไลท์การแก้บั๊ก: แปลงชนิดข้อมูลให้ตรงใจ Prisma ก่อนส่ง!
       const payload = { 
         ...formData, 
         maxParticipants: Number(formData.maxParticipants), // แปลงเป็นตัวเลข

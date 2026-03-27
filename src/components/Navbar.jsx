@@ -6,16 +6,21 @@ function Navbar() {
   const location = useLocation();
   const token = localStorage.getItem('token');
   
-  const [user, setUser] = useState({ name: 'Guest', role: 'Member', profileImage: '' });
+  // 💥 สังเกตว่าเราใช้ profileImageUrl ให้ตรงกับใน Database
+  const [user, setUser] = useState({ name: 'Guest', role: 'Member', profileImageUrl: '' });
 
   useEffect(() => {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
+        
+        // 💥 ดึงรูปใหม่ที่เราเพิ่งอัปโหลด (และแอบจดไว้ในเครื่อง) มาใช้
+        const localImage = localStorage.getItem('myProfileImage'); 
+        
         setUser({
           name: payload.name || 'Athletic User',
           role: 'Pro Runner',
-          profileImage: payload.profileImage || '' // 💥 ดึง URL รูปมาจาก Token (ถ้ามี)
+          profileImageUrl: localImage || payload.profileImageUrl || '' // 💥 ใช้รูปใหม่เสมอ!
         });
       } catch (e) {
         console.error("แกะ Token ไม่สำเร็จ");
@@ -60,10 +65,10 @@ function Navbar() {
               <div className="font-body text-xs text-on-surface-variant">{user.role}</div>
             </div>
             
-            {/* 💥 ไฮไลท์: เปลี่ยนเป็น <Link> แล้วเพิ่ม hover:scale ให้รู้ว่ากดได้! */}
+            {/* 💥 รูปโปรไฟล์ Navbar ที่กดแล้วเด้งไปหน้า Profile */}
             <Link to="/profile" className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-inner border-2 border-primary/20 hover:scale-110 transition-transform cursor-pointer overflow-hidden">
-              {user.profileImage ? (
-                <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+              {user.profileImageUrl ? (
+                <img src={user.profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <span className="material-symbols-outlined text-white text-xl">person</span>
               )}
@@ -72,7 +77,11 @@ function Navbar() {
           </div>
 
           <button 
-            onClick={() => { localStorage.removeItem('token'); navigate('/login'); }} 
+            onClick={() => { 
+              localStorage.removeItem('token'); 
+              localStorage.removeItem('myProfileImage'); // 💥 เคลียร์รูปลบความจำตอนล็อกเอาท์ด้วย
+              navigate('/login'); 
+            }} 
             className="flex items-center justify-center w-10 h-10 rounded-full bg-red-50 text-secondary hover:bg-red-100 hover:scale-105 transition-all shrink-0"
             title="Logout"
           >
