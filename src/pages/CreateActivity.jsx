@@ -38,12 +38,12 @@ function CreateActivity() {
 
   return (
     // 🎨 โซนพื้นหลังสุดอลังการ (Gradient + Floating Sport Cards)
-    <div className="min-h-[calc(100vh-80px)] bg-linear-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 flex items-center justify-center py-12 px-4 relative overflow-hidden font-body">
+    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 flex items-center justify-center py-12 px-4 relative overflow-hidden font-body">
       
       {/* สติกเกอร์/การ์ดตกแต่ง ซ้าย (บาสเกตบอล) - ซ่อนในจอมือถือ */}
-      <div className="absolute top-10 left-10 lg:left-32 w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden rotate-[-12deg] opacity-70 shadow-2xl pointer-events-none hidden md:block border-4 border-white/50">
+      <div className="absolute top-10 left-10 lg:left-32 w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden -rotate-12 opacity-70 shadow-2xl pointer-events-none hidden md:block border-4 border-white/50">
         <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=600&auto=format&fit=crop" alt="Basketball" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-linear-to-t from-secondary/40 to-transparent mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-secondary/40 to-transparent mix-blend-multiply"></div>
       </div>
 
       {/* สติกเกอร์/การ์ดตกแต่ง ขวา (วิ่ง) - ซ่อนในจอมือถือ */}
@@ -57,7 +57,7 @@ function CreateActivity() {
       {/* 📝 โซนกล่องฟอร์มหลัก (ดีไซน์เป๊ะตามรูปที่ 1 เน้นคลีนๆ ขาวๆ) */}
       <div className="relative z-10 w-full max-w-[650px] bg-surface-container-lowest p-8 md:p-12 rounded-[2rem] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-outline-variant/20">
         
-        <h2 className="text-3xl font-headline font-black text-primary text-center mb-8">สร้างตี้กีฬาใหม่ 🏃‍♂️</h2>
+        <h2 className="text-3xl font-headline font-black text-primary text-center mb-8">Create Activity</h2>
         
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           
@@ -153,7 +153,7 @@ function CreateActivity() {
             type="submit" 
             className="w-full p-4 mt-6 bg-secondary text-white rounded-xl font-headline font-bold text-lg hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-secondary/30 transition-all"
           >
-            สร้างตี้เลย!
+            Create
           </button>
 
         </form>

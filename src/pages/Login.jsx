@@ -10,11 +10,11 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(''); 
+    setError('');
     try {
       const response = await axios.post('/auth/login', { email, password });
       localStorage.setItem('token', response.data.token);
-      navigate('/'); 
+      navigate('/');
     } catch (error) {
       setError(error.response?.data?.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
     }
@@ -22,7 +22,7 @@ function Login() {
 
   return (
     <div className="bg-background font-body text-on-background min-h-screen flex items-center justify-center p-6 relative z-10 overflow-hidden">
-      
+
       {/* Background Decoration */}
       <div className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none">
         <div className="absolute -top-[10%] -left-[5%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]"></div>
@@ -31,9 +31,9 @@ function Login() {
 
       <main className="w-full max-w-432 flex items-center justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 w-full max-w-6xl items-center gap-12">
-          
+
           <div className="hidden lg:flex lg:col-span-7 flex-col pr-12 relative z-10">
-            
+
             <div className="flex items-center gap-3 mb-10">
               <div className="bg-primary p-3 rounded-xl">
                 <span className="material-symbols-outlined text-white text-3xl">fitness_center</span>
@@ -42,25 +42,25 @@ function Login() {
             </div>
 
             <h1 className="font-headline font-extrabold text-6xl text-on-background leading-tight mb-8">
-              Are you ready <span className="text-primary">to exercise with your new friends?</span> <br/>
+              Are you ready <span className="text-primary">to exercise with your new friends?</span> <br />
             </h1>
-            
+
             <p className="text-on-surface-variant text-xl max-w-md leading-relaxed mb-12">
               Access your personalized programs, track your vitality metrics, and join the sanctuary of movement.
             </p>
-            
+
             {/* แผงข้อมูลเสมือนจริง (Vitality Metrics) */}
             {/* 💥 เปลี่ยน ambient-shadow เป็น Tailwind เพียวๆ */}
             <div className="relative w-full aspect-[4/3] rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(7,30,39,0.06)] border border-outline-variant/10 bg-surface-container-lowest">
-              <img 
-                className="absolute inset-0 w-full h-full object-cover" 
-                alt="Fit athlete" 
-                src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1200&auto=format&fit=crop" 
+              <img
+                className="absolute inset-0 w-full h-full object-cover"
+                alt="Fit athlete"
+                src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1200&auto=format&fit=crop"
               />
               <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/50 via-black/10 to-transparent">
-                
+
                 <div className="grid grid-cols-2 gap-x-6 gap-y-4 max-w-lg bg-surface-container-lowest/10 backdrop-blur-[6px] p-6 rounded-3xl border border-white/10">
-                  
+
                   <div className="flex items-center gap-4 group">
                     <div className="bg-surface-container-low p-4 rounded-xl shadow-inner border border-outline-variant/5">
                       <span className="material-symbols-outlined text-primary text-3xl group-hover:scale-110 transition-transform">health_metrics</span>
@@ -92,7 +92,7 @@ function Login() {
                   </div>
                 </div>
               </div>
-              
+
               {/* แสงเอฟเฟกต์ */}
               <div className="absolute inset-0 bg-gradient-radial from-transparent via-white/5 to-transparent blur-[60px] opacity-40"></div>
             </div>
@@ -102,7 +102,7 @@ function Login() {
           <div className="lg:col-span-5 w-full flex justify-center">
             {/* 💥 เปลี่ยน ambient-shadow เป็น Tailwind เพียวๆ */}
             <div className="bg-surface-container-lowest p-10 md:p-14 rounded-[2rem] shadow-[0_20px_40px_rgba(7,30,39,0.06)] w-full max-w-md border border-outline-variant/10">
-              
+
               <div className="lg:hidden flex justify-center mb-8">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary text-4xl">fitness_center</span>
@@ -116,7 +116,7 @@ function Login() {
               </div>
 
               <form onSubmit={handleLogin} className="space-y-6">
-                
+
                 {/* Email Input */}
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-on-surface-variant ml-1" htmlFor="email">Email Address</label>
@@ -124,13 +124,13 @@ function Login() {
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <span className="material-symbols-outlined text-on-surface-variant text-xl">mail</span>
                     </div>
-                    <input 
-                      type="email" 
-                      id="email" 
+                    <input
+                      type="email"
+                      id="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="block w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background" 
-                      placeholder="name@example.com" 
+                      className="block w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background"
+                      placeholder="name@example.com"
                       required
                     />
                   </div>
@@ -146,13 +146,13 @@ function Login() {
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <span className="material-symbols-outlined text-on-surface-variant text-xl">lock</span>
                     </div>
-                    <input 
-                      type="password" 
-                      id="password" 
+                    <input
+                      type="password"
+                      id="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="block w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background" 
-                      placeholder="••••••••" 
+                      className="block w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background"
+                      placeholder="••••••••"
                       required
                     />
                   </div>
@@ -185,8 +185,9 @@ function Login() {
 
               <div className="mt-6 text-center">
                 <p className="text-on-surface-variant font-medium">
-                  Don't have an account? 
-                  <Link to="#" className="text-secondary font-bold hover:underline ml-2">Sign up</Link>
+                  Don't have an account?
+                  {/* 💥 แก้ Link ตรงนี้ครับ */}
+                  <Link to="/register" className="text-secondary font-bold hover:underline ml-2">Sign up</Link>
                 </p>
               </div>
 
