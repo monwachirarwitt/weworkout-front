@@ -42,7 +42,7 @@ function Profile() {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return alert('กรุณาเลือกรูปก่อนนะครับลูกพี่!');
+    if (!selectedFile) return alert('กรุณาเลือกรูปก่อน');
     
     setLoading(true);
 
@@ -54,10 +54,7 @@ function Profile() {
       });
       
       alert('📸 อัปเดตโปรไฟล์สำเร็จ!');
-      
-      // 💥 แอบจด URL รูปใหม่ลงใน LocalStorage ของเบราว์เซอร์!
-      localStorage.setItem('myProfileImage', profileImageUrl); 
-      
+        
       setUser({ ...user, profileImageUrl: profileImageUrl }); 
       setPreviewImage(null);
       setSelectedFile(null);
