@@ -1,36 +1,22 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import useAuthStore from '../store/authStore'; // 💥 1. อิมพอร์ต Store ของเรามาใช้
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem('token');
   
-  // 💥 สังเกตว่าเราใช้ profileImageUrl ให้ตรงกับใน Database
-  const [user, setUser] = useState({ name: 'Guest', role: 'Member', profileImageUrl: '' });
+  // 💥 2. ดึง user, token และฟังก์ชัน logout ออกมาจาก Store เลย
+  const { user, token, logout } = useAuthStore();
 
-  useEffect(() => {
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        
-        // 💥 ดึงรูปใหม่ที่เราเพิ่งอัปโหลด (และแอบจดไว้ในเครื่อง) มาใช้
-        const localImage = localStorage.getItem('myProfileImage'); 
-        
-        setUser({
-          name: payload.name || 'Athletic User',
-          role: 'Pro Runner',
-          profileImageUrl: localImage || payload.profileImageUrl || '' // 💥 ใช้รูปใหม่เสมอ!
-        });
-      } catch (e) {
-        console.error("แกะ Token ไม่สำเร็จ");
-      }
-    }
-  }, [token]);
-
+  // 💥 3. เปลี่ยนเงื่อนไขซ่อน Navbar โดยอิงจาก token ใน Store
   if (!token || location.pathname === '/login' || location.pathname === '/register') return null;
 
   const isActive = (path) => location.pathname === path;
+
+  // 💥 4. สร้างตัวแปรดึงชื่อและรูป เพื่อความชัวร์ (ถ้าข้อมูลยังไม่มา ให้มี Fallback)
+  const displayName = user?.name || 'Athletic User';
+  const displayRole = user?.role || 'Pro Runner'; // ใน DB เราไม่มี role เลยใส่ค่าแข็งไว้ก่อนตามดีไซน์เดิม
+  const profileImageUrl = user?.profileImageUrl || '';
 
   return (
     <nav className="sticky top-0 z-50 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant/20">
@@ -61,14 +47,15 @@ function Navbar() {
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-3 text-right">
             <div>
-              <div className="font-headline font-bold text-on-background text-[15px]">{user.name}</div>
-              <div className="font-body text-xs text-on-surface-variant">{user.role}</div>
+              {/* 💥 5. โชว์ชื่อและ Role จากตัวแปรที่เราดึงมา */}
+              <div className="font-headline font-bold text-on-background text-[15px]">{displayName}</div>
+              <div className="font-body text-xs text-on-surface-variant">{displayRole}</div>
             </div>
             
-            {/* 💥 รูปโปรไฟล์ Navbar ที่กดแล้วเด้งไปหน้า Profile */}
+            {/* 💥 6. โชว์รูปโปรไฟล์ */}
             <Link to="/profile" className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-inner border-2 border-primary/20 hover:scale-110 transition-transform cursor-pointer overflow-hidden">
-              {user.profileImageUrl ? (
-                <img src={user.profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
+              {profileImageUrl ? (
+                <img src={profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <span className="material-symbols-outlined text-white text-xl">person</span>
               )}
@@ -78,8 +65,8 @@ function Navbar() {
 
           <button 
             onClick={() => { 
-              localStorage.removeItem('token'); 
-              localStorage.removeItem('myProfileImage'); // 💥 เคลียร์รูปลบความจำตอนล็อกเอาท์ด้วย
+              // 💥 7. เรียกใช้ฟังก์ชัน logout จาก Store แทน
+              logout(); 
               navigate('/login'); 
             }} 
             className="flex items-center justify-center w-10 h-10 rounded-full bg-red-50 text-secondary hover:bg-red-100 hover:scale-105 transition-all shrink-0"

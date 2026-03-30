@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
+import useAuthStore from '../store/authStore'; // 💥 1. อิมพอร์ต Store ของเรามาใช้
 
 function FindActivities() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  
+  // 💥 2. ดึง token ออกมาจาก Store โดยตรง
+  const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
+    // 💥 3. ถ้าไม่มี Token ก็เตะไปหน้า Login เลย
     if (!token) {
       navigate('/login');
       return;
@@ -26,8 +30,9 @@ function FindActivities() {
         setLoading(false);
       }
     };
+    
     fetchEvents();
-  }, [navigate, token]);
+  }, [navigate, token]); // ทำงานใหม่เมื่อ token หรือ navigate เปลี่ยน
 
   const getCoverImage = (category) => {
     switch(category) {
@@ -66,6 +71,7 @@ function FindActivities() {
             Connecting urban athletes to move together. Discover community-led sessions near you.
           </p>
 
+          {/* แถบ Search / Filter */}
           <div className="mt-10 bg-surface-container-lowest p-2 rounded-full shadow-lg border border-outline-variant/20 flex flex-col md:flex-row items-center max-w-4xl mx-auto gap-2">
             <div className="flex items-center flex-1 w-full px-4 py-2 text-on-surface-variant">
               <span className="material-symbols-outlined mr-3">search</span>
@@ -88,6 +94,7 @@ function FindActivities() {
           </div>
         </div>
 
+        {/* Loading State */}
         {loading ? (
           <div className="text-center py-20 text-on-surface-variant font-bold text-xl flex flex-col items-center gap-4">
             <span className="material-symbols-outlined animate-spin text-4xl text-primary">sync</span>
@@ -95,10 +102,13 @@ function FindActivities() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            {/* โชว์ข้อความถ้าไม่มีตี้ */}
             {events.length === 0 && !loading && (
               <p className="col-span-full text-center text-on-surface-variant text-lg">ยังไม่มีตี้เลย ไปสร้างตี้กันเถอะ!</p>
             )}
 
+            {/* วนลูปโชว์การ์ดตี้ */}
             {events.map((event) => (
               <div key={event.id} className="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_15px_30px_rgba(0,0,0,0.06)] border border-outline-variant/10 flex flex-col hover:-translate-y-2 transition-transform duration-300 group">
                 <div className="relative h-48 overflow-hidden">
@@ -152,6 +162,7 @@ function FindActivities() {
           </div>
         )}
 
+        {/* ปุ่ม Load More */}
         {!loading && events.length > 0 && (
           <div className="flex justify-center mt-12">
             <button className="bg-surface-container-lowest text-primary font-bold py-3 px-8 rounded-full border-2 border-primary/20 hover:bg-primary hover:text-white transition-all shadow-sm">

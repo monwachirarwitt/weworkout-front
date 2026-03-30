@@ -1,30 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
+import useAuthStore from '../store/authStore'; // 💥 1. อิมพอร์ต Store ของเรามาใช้
 
 function EventDetail() {
   const { id } = useParams(); 
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  
+  // 💥 2. ดึง token และ user ออกมาจาก Zustand 
+  // (ไม่ต้องมานั่งใช้ atob() ถอดรหัสหา ID อีกต่อไป!)
+  const { token, user: currentUser } = useAuthStore();
 
   const [event, setEvent] = useState(null);
   const [comments, setComments] = useState([]); 
   const [newComment, setNewComment] = useState(''); 
   const [loading, setLoading] = useState(true);
 
-  //  ฟังก์ชันลับ: ถอดรหัส Token ดูว่าเราคือใคร (User ID)
-  const getCurrentUserId = () => {
-    if (!token) return null;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.id || payload.userId; // แกะ ID ของเราออกมาจากกระเป๋า
-    } catch (e) {
-      return null;
-    }
-  };
-  const currentUserId = getCurrentUserId();
-
   useEffect(() => {
+    // ถ้าไม่มี Token ให้เตะกลับไปหน้า Login
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const eventRes = await axios.get(`/event/${id}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -33,24 +31,26 @@ function EventDetail() {
         const commentRes = await axios.get(`/event/${id}/comments`, { headers: { Authorization: `Bearer ${token}` } });
         setComments(commentRes.data);
       } catch (error) {
-        console.error('ดึงข้อมูลไม่สำเร็จ:', error);
+        console.error('Fetch data failed:', error);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [id, token]);
+  }, [id, token, navigate]);
 
+  // ฟังก์ชันกดเข้าร่วมตี้
   const handleJoin = async () => {
     try {
       await axios.post(`/event/${id}/join`, {}, { headers: { Authorization: `Bearer ${token}` } });
-      alert('ส่งคำขอเข้าร่วมสำเร็จ! รอ Host อนุมัตินะครับ 🎉');
+      alert('🎉 Request sent successfully! Waiting for host approval.');
       window.location.reload(); 
     } catch (error) {
-      alert('❌ กดจอยไม่ได้: ' + (error.response?.data?.error || error.message));
+      alert('❌ Failed to join: ' + (error.response?.data?.error || error.message));
     }
   };
 
+  // ฟังก์ชันส่งข้อความแชท
   const handleSendComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -59,118 +59,266 @@ function EventDetail() {
       setNewComment(''); 
       window.location.reload(); 
     } catch (error) {
-      alert('❌ ส่งคอมเมนต์ไม่ได้: ' + (error.response?.data?.error || error.message));
+      alert('❌ Failed to send comment: ' + (error.response?.data?.error || error.message));
     }
   };
 
-  // 💥 ฟังก์ชันใหม่: กดยอมรับ หรือ ปฏิเสธ ลูกตี้
+  // ฟังก์ชันสำหรับ Host เอาไว้เตะหรือรับคนเข้าตี้
   const handleManageParticipant = async (participantId, status) => {
     try {
-      // ยิง API ไปอัปเดตสถานะ (ACCEPTED หรือ REJECTED)
-      // 💡 หมายเหตุ: สมมติว่า Path หลังบ้านเราคือ /event/:id/participants/:participantId
       await axios.put(`/event/${id}/participants/${participantId}`, 
         { status: status }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      window.location.reload(); // รีเฟรชเพื่อโชว์สถานะใหม่
+      window.location.reload(); 
     } catch (error) {
-      alert('❌ อัปเดตไม่สำเร็จ: ' + (error.response?.data?.error || error.message));
+      alert('❌ Failed to update status: ' + (error.response?.data?.error || error.message));
     }
   };
 
-  if (loading) return <p style={{ textAlign: 'center', marginTop: '50px' }}>กำลังโหลดข้อมูล... ⏳</p>;
-  if (!event) return <p style={{ textAlign: 'center', color: 'red', marginTop: '50px' }}>❌ ไม่พบข้อมูลตี้</p>;
+  // ฟังก์ชันสุ่มรูปปก (เหมือนในหน้าอื่นๆ)
+  const getCoverImage = (category) => {
+    switch(category) {
+      case 'Football': return 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1200&auto=format&fit=crop';
+      case 'Basketball': return 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1200&auto=format&fit=crop';
+      case 'Running': return 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=1200&auto=format&fit=crop';
+      case 'Badminton': return 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=1200&auto=format&fit=crop';
+      default: return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1200&auto=format&fit=crop';
+    }
+  };
 
-  // เช็กว่าคนที่ล็อกอินอยู่ คือ Host ของตี้นี้ใช่หรือไม่?
-  const isHost = event.hostId === currentUserId || event.host.id === currentUserId;
+  // ----------------------------------------------------------------------
+  // โซนแสดงผล (UI)
+  // ----------------------------------------------------------------------
+
+  // หน้าโหลดข้อมูล
+  if (loading) return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center font-body">
+      <span className="material-symbols-outlined animate-spin text-5xl text-primary mb-4">sync</span>
+      <p className="text-xl font-bold text-on-surface-variant">Loading Activity...</p>
+    </div>
+  );
+
+  // กรณีหาตี้ไม่เจอ (บั๊ก หรือโดนลบไปแล้ว)
+  if (!event) return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center font-body">
+      <span className="material-symbols-outlined text-6xl text-error mb-4">error</span>
+      <p className="text-xl font-bold text-on-surface">Activity Not Found</p>
+      <button onClick={() => navigate(-1)} className="mt-6 text-primary font-bold hover:underline">Go Back</button>
+    </div>
+  );
+
+  // 💥 เช็คสิทธิ์ความยิ่งใหญ่: ตัวเราคือ Host ของตี้นี้ใช่หรือไม่?
+  const isHost = event.hostId === currentUser?.id || event.host?.id === currentUser?.id;
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '600px', margin: '0 auto', paddingBottom: '50px' }}>
-      <button onClick={() => navigate(-1)} style={{ marginBottom: '20px', padding: '8px 15px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }}>
-        ⬅️ กลับหน้า Feed
-      </button>
-
-      <div style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', backgroundColor: 'white' }}>
-        <h2 style={{ color: '#00A693', marginTop: '0' }}>{event.title}</h2>
-        <p style={{ color: '#555', lineHeight: '1.6' }}>{event.description}</p>
-        <hr style={{ margin: '20px 0', borderTop: '1px solid #eee' }} />
-        <p><strong>📍 สถานที่:</strong> <a href={event.locationUrl} target="_blank" rel="noreferrer" style={{ color: '#00A693' }}>{event.locationName}</a></p>
-        <p><strong>🗓️ วันที่:</strong> {new Date(event.eventDate).toLocaleDateString('th-TH')}</p>
-        <p><strong>⏰ เวลา:</strong> {event.startTime} - {event.endTime}</p>
+    <div className="min-h-screen bg-surface-container-low font-body pb-20">
+      
+      {/* 🖼️ Cover Image Section (รูปแบนเนอร์ด้านบน) */}
+      <div className="w-full h-64 md:h-80 relative">
+        <img src={getCoverImage(event.category)} alt={event.category} className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
         
-        {/* ซ่อนปุ่มจอย ถ้าเราเป็น Host เอง */}
-        {!isHost && (
-          <button 
-            onClick={handleJoin}
-            style={{ width: '100%', padding: '12px', marginTop: '20px', backgroundColor: '#FF7043', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>
-            ✋ กดขอเข้าร่วมตี้นี้
-          </button>
-        )}
-        
-        <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f0f8ff', borderRadius: '8px', borderLeft: '4px solid #00A693' }}>
-          <h3 style={{ margin: '0 0 5px 0' }}>👑 ผู้จัด (Host)</h3>
-          <p style={{ margin: '0', fontWeight: 'bold' }}>{event.host.name} {isHost && <span style={{ color: '#FF7043', fontSize: '12px' }}>(คุณคือ Host)</span>}</p>
-        </div>
-
-        <div style={{ marginTop: '20px' }}>
-          <h3>👥 ผู้เข้าร่วม ({event.participants.length} / {event.maxParticipants})</h3>
-          {event.participants.length === 0 ? (
-            <p style={{ color: 'gray', fontStyle: 'italic' }}>ยังไม่มีใครจอยตี้เลย...</p>
-          ) : (
-            <ul style={{ paddingLeft: '0', listStyle: 'none' }}>
-              {event.participants.map(p => (
-                <li key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', padding: '10px', border: '1px solid #eee', borderRadius: '4px' }}>
-                  
-                  <div>
-                    <strong>{p.user.name}</strong> 
-                    <span style={{ marginLeft: '10px', fontSize: '12px', padding: '3px 8px', borderRadius: '12px', backgroundColor: p.status === 'ACCEPTED' ? '#d9f7be' : '#ffe58f', color: p.status === 'ACCEPTED' ? '#389e0d' : '#d48806' }}>
-                      {p.status === 'ACCEPTED' ? '✅ อนุมัติ' : '⏳ รอพิจารณา'}
-                    </span>
-                  </div>
-
-                 {/* 💥 โซนปุ่มอำนาจของ Host 💥 */}
-                  {isHost && p.status === 'PENDING' && (
-                    <div style={{ display: 'flex', gap: '5px' }}>
-                      {/* เปลี่ยนตรงวงเล็บเป็น p.userId || p.user.id ครับ */}
-                      <button onClick={() => handleManageParticipant(p.userId || p.user.id, 'ACCEPTED')} style={{ backgroundColor: '#52c41a', color: 'white', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
-                        รับเข้าตี้
-                      </button>
-                      <button onClick={() => handleManageParticipant(p.userId || p.user.id, 'REJECTED')} style={{ backgroundColor: '#ff4d4f', color: 'white', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
-                        ปฏิเสธ
-                      </button>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        {/* ปุ่ม Back มุมซ้ายบน */}
+        <button 
+          onClick={() => navigate(-1)} 
+          className="absolute top-6 left-6 md:left-12 flex items-center gap-2 bg-surface-container-lowest/80 backdrop-blur-md px-4 py-2 rounded-full font-bold text-on-surface-variant hover:bg-white transition-all shadow-md"
+        >
+          <span className="material-symbols-outlined text-sm">arrow_back</span> Back
+        </button>
       </div>
 
-      {/* --- ส่วนคอมเมนต์ --- */}
-      <div style={{ marginTop: '30px', border: '1px solid #ddd', padding: '20px', borderRadius: '8px', backgroundColor: '#fafafa' }}>
-        <h3>💬 พูดคุยในตี้ ({comments.length} ข้อความ)</h3>
-        <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '20px', padding: '10px', backgroundColor: 'white', border: '1px solid #eee', borderRadius: '4px' }}>
-          {comments.length === 0 ? (
-            <p style={{ color: 'gray', textAlign: 'center' }}>ยังไม่มีข้อความ พิมพ์ทักทายเลย!</p>
-          ) : (
-            comments.map(c => (
-              <div key={c.id} style={{ marginBottom: '15px', paddingBottom: '10px', borderBottom: '1px solid #f0f0f0' }}>
-                <strong style={{ color: '#00A693' }}>{c.user.name}</strong> 
-                <span style={{ fontSize: '12px', color: 'gray', marginLeft: '10px' }}>
-                  {new Date(c.createdAt).toLocaleTimeString('th-TH')}
-                </span>
-                <p style={{ margin: '5px 0 0 0' }}>{c.message}</p>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* ------------------------------------------------------------- */}
+        {/* 🟢 คอลัมน์ซ้าย (70%): รายละเอียดหลัก + คอมเมนต์แชท */}
+        {/* ------------------------------------------------------------- */}
+        <div className="lg:col-span-2 space-y-8">
+          
+          {/* Card 1: รายละเอียดของตี้ (Detail Card) */}
+          <div className="bg-surface-container-lowest rounded-[2rem] p-8 md:p-10 shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-outline-variant/10">
+            <div className="inline-block px-4 py-1.5 bg-primary/10 text-primary font-black text-xs uppercase tracking-widest rounded-full mb-4">
+              {event.category}
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl font-headline font-black text-on-background mb-6 leading-tight">
+              {event.title}
+            </h1>
+            
+            <p className="text-on-surface-variant text-lg leading-relaxed mb-8">
+              {event.description}
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-surface-container-low p-6 rounded-2xl border border-outline-variant/20 mb-8">
+              <div className="flex items-start gap-4">
+                <div className="bg-primary/10 p-3 rounded-full text-primary">
+                  <span className="material-symbols-outlined text-2xl">calendar_month</span>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-outline uppercase tracking-wider mb-1">Date & Time</p>
+                  <p className="font-bold text-on-background">{new Date(event.eventDate).toLocaleDateString('en-GB', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+                  <p className="text-sm font-medium text-on-surface-variant">{event.startTime} - {event.endTime}</p>
+                </div>
               </div>
-            ))
-          )}
-        </div>
-        <form onSubmit={handleSendComment} style={{ display: 'flex', gap: '10px' }}>
-          <input type="text" placeholder="พิมพ์ข้อความที่นี่..." value={newComment} onChange={(e) => setNewComment(e.target.value)} style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }} />
-          <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#00A693', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>ส่ง</button>
-        </form>
-      </div>
+              <div className="flex items-start gap-4">
+                <div className="bg-primary/10 p-3 rounded-full text-primary">
+                  <span className="material-symbols-outlined text-2xl">location_on</span>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-outline uppercase tracking-wider mb-1">Location</p>
+                  <p className="font-bold text-on-background line-clamp-1">{event.locationName}</p>
+                  <a href={event.locationUrl} target="_blank" rel="noreferrer" className="text-sm font-bold text-secondary hover:underline flex items-center gap-1 mt-1">
+                    View on Map <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                  </a>
+                </div>
+              </div>
+            </div>
 
+            {/* โชว์ปุ่ม Join เฉพาะคนที่ไม่ใช่ Host */}
+            {!isHost && (
+              <button 
+                onClick={handleJoin}
+                className="w-full py-4 bg-gradient-to-r from-secondary to-secondary-container text-white font-headline font-bold text-lg rounded-xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group"
+              >
+                Join Activity
+                <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+              </button>
+            )}
+          </div>
+
+          {/* Card 2: โซนแชทคอมเมนต์ (Discussion Board) */}
+          <div className="bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-outline-variant/10 flex flex-col h-[500px]">
+            <h2 className="text-2xl font-headline font-black text-on-background mb-6 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">forum</span> Discussion Board
+            </h2>
+            
+            <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-6 custom-scrollbar">
+              {comments.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-outline">
+                  <span className="material-symbols-outlined text-4xl mb-2">chat_bubble</span>
+                  <p className="font-medium">No messages yet. Start the conversation!</p>
+                </div>
+              ) : (
+                comments.map(c => (
+                  <div key={c.id} className={`flex ${c.user.id === currentUser?.id ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] rounded-2xl px-5 py-3 ${c.user.id === currentUser?.id ? 'bg-primary text-white rounded-br-none' : 'bg-surface-container-low text-on-background rounded-bl-none border border-outline-variant/20'}`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs font-bold ${c.user.id === currentUser?.id ? 'text-white/80' : 'text-primary'}`}>
+                          {c.user.name} {c.user.id === event.hostId && '(Host)'}
+                        </span>
+                        <span className="text-[10px] opacity-70">
+                          {new Date(c.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <p className="text-sm md:text-base leading-relaxed">{c.message}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <form onSubmit={handleSendComment} className="flex gap-3 relative">
+              <input 
+                type="text" 
+                placeholder="Type a message..." 
+                value={newComment} 
+                onChange={(e) => setNewComment(e.target.value)} 
+                className="w-full bg-surface-container-low border-none rounded-full px-6 py-4 pr-16 focus:ring-2 focus:ring-primary/20 outline-none"
+              />
+              <button 
+                type="submit" 
+                className="absolute right-2 top-2 bottom-2 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:scale-105 transition-transform"
+              >
+                <span className="material-symbols-outlined text-[20px] ml-1">send</span>
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+        {/* ------------------------------------------------------------- */}
+        {/* 🟢 คอลัมน์ขวา (30%): โฮสต์ + ลูกตี้ */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-8">
+          
+          {/* Host Card */}
+          <div className="bg-surface-container-lowest rounded-[2rem] p-6 shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-outline-variant/10 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-r from-primary to-primary-container"></div>
+            <div className="relative z-10">
+              <div className="w-20 h-20 mx-auto rounded-full bg-surface-container-lowest p-1 mb-3">
+                <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-2xl">
+                  {event.host?.name?.charAt(0) || 'H'}
+                </div>
+              </div>
+              <p className="text-xs font-bold text-outline uppercase tracking-widest mb-1">Event Host</p>
+              <h3 className="text-xl font-headline font-black text-on-background">{event.host?.name}</h3>
+              {isHost && (
+                <span className="inline-block mt-2 bg-secondary/10 text-secondary text-[10px] font-black uppercase px-3 py-1 rounded-full">
+                  It's You!
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Participants Card */}
+          <div className="bg-surface-container-lowest rounded-[2rem] p-6 shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-outline-variant/10">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-headline font-black text-lg text-on-background">Participants</h3>
+              <span className="bg-surface-container-low text-primary text-xs font-bold px-3 py-1 rounded-full">
+                {event.participants?.length || 0} / {event.maxParticipants}
+              </span>
+            </div>
+
+            {event.participants?.length === 0 ? (
+              <p className="text-center text-sm font-medium text-outline italic py-6">No participants yet.</p>
+            ) : (
+              <ul className="space-y-3">
+                {event.participants.map(p => (
+                  <li key={p.id} className="flex flex-col bg-surface-container-low p-3 rounded-xl border border-outline-variant/10">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary font-bold text-xs shadow-sm">
+                          {p.user?.name?.charAt(0)}
+                        </div>
+                        <span className="font-bold text-sm text-on-background line-clamp-1">{p.user?.name}</span>
+                      </div>
+                      
+                      {/* ป้ายบอกสถานะ */}
+                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-sm ${
+                        p.status === 'ACCEPTED' ? 'bg-tertiary-fixed-dim text-on-tertiary-container' : 
+                        p.status === 'REJECTED' ? 'bg-error-container text-error' : 
+                        'bg-secondary-fixed text-on-secondary-fixed-variant'
+                      }`}>
+                        {p.status}
+                      </span>
+                    </div>
+
+                    {/* 💥 โซนพลังอำนาจ: ถ้าเราเป็น Host และลูกตี้คนนี้ยัง PENDING อยู่ จะโชว์ปุ่มให้กดยอมรับ/ปฏิเสธ */}
+                    {isHost && p.status === 'PENDING' && (
+                      <div className="flex gap-2 mt-2 pt-2 border-t border-outline-variant/10">
+                        <button 
+                          onClick={() => handleManageParticipant(p.userId || p.user.id, 'ACCEPTED')} 
+                          className="flex-1 bg-tertiary text-white py-1.5 rounded-lg text-xs font-bold hover:bg-[#1f5021] transition-colors shadow-sm"
+                        >
+                          Accept
+                        </button>
+                        <button 
+                          onClick={() => handleManageParticipant(p.userId || p.user.id, 'REJECTED')} 
+                          className="flex-1 bg-surface-container-highest text-on-surface py-1.5 rounded-lg text-xs font-bold hover:bg-error hover:text-white transition-colors shadow-sm"
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+        </div>
+
+      </div>
     </div>
   );
 }

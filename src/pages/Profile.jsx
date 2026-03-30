@@ -2,34 +2,22 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
 import { uploadImage } from '../utils/upload'; 
+import useAuthStore from '../store/authStore'; // 💥 1. อิมพอร์ต Store
 
 function Profile() {
-  const [user, setUser] = useState({ name: '', email: '', profileImageUrl: '' });
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  
+  // 💥 2. ดึงข้อมูล user, token และฟังก์ชันอัปเดต Store มาใช้งาน
+  const { user, token, login } = useAuthStore();
 
   useEffect(() => {
+    // ถ้าไม่มี Token ให้เตะไปหน้า Login
     if (!token) {
       navigate('/login');
-      return;
-    }
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      
-      // 💥 ดึงรูปที่แอบจำไว้ในเครื่องมาใช้ (ถ้ามี)
-      const localImage = localStorage.getItem('myProfileImage'); 
-      
-      setUser({
-        name: payload.name || 'Athletic User',
-        email: payload.email || 'user@example.com',
-        profileImageUrl: localImage || payload.profileImageUrl || '' // 💥 ถ้ามีรูปในเครื่อง ให้ใช้ก่อนเลย!
-      });
-    } catch (e) {
-      console.error("แกะ Token ไม่สำเร็จ");
     }
   }, [navigate, token]);
 
@@ -42,33 +30,51 @@ function Profile() {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return alert('กรุณาเลือกรูปก่อน');
+    if (!selectedFile) return alert('Please select an image first.');
     
     setLoading(true);
 
     try {
+      // 1. อัปโหลดรูปขึ้น Cloudinary ได้ URL กลับมา
       const profileImageUrl = await uploadImage(selectedFile);
       
+      // 2. ส่ง URL รูปใหม่ไปอัปเดตในฐานข้อมูล
       const response = await axios.put('/user/profile', { profileImageUrl: profileImageUrl }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      alert('📸 อัปเดตโปรไฟล์สำเร็จ!');
+      alert('📸 Profile updated successfully!');
       
+      // 💥 3. จุดสำคัญ: ถ้า API ส่ง Token ใบใหม่ (ที่มีรูปอัปเดต) กลับมา
+      // ให้โยน Token นั้นเข้า Zustand (ผ่านฟังก์ชัน login) เพื่ออัปเดตทั้งระบบทันที!
+      if (response.data.token) {
+        login(response.data.token);
+      }
   
-      setUser({ ...user, profileImageUrl: profileImageUrl }); 
       setPreviewImage(null);
       setSelectedFile(null);
       
-      window.location.reload(); 
+      // ลบคำสั่ง window.location.reload() ทิ้งไปได้เลยครับ 
       
     } catch (error) {
-      console.error('อัปโหลดล้มเหลว:', error);
-      alert('❌ อัปโหลดไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+      console.error('Upload failed:', error);
+      alert('❌ Failed to upload image. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  // 💥 ถ้ายังดึงข้อมูล User ไม่เสร็จ ให้โชว์หน้าโหลดไปก่อน
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-4 text-primary font-bold">Loading Profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-background flex justify-center py-12 px-6 font-body">
@@ -80,6 +86,7 @@ function Profile() {
           
           <div className="relative group">
             <div className="w-32 h-32 rounded-full border-4 border-surface-container-lowest overflow-hidden bg-surface-container-low shadow-lg flex items-center justify-center">
+              {/* 💥 ดึงรูปจากตัวแปร user (ที่เชื่อมกับ Zustand) มาโชว์ได้เลย */}
               {previewImage || user.profileImageUrl ? (
                 <img src={previewImage || user.profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -93,6 +100,7 @@ function Profile() {
             </label>
           </div>
 
+          {/* 💥 ดึงข้อมูลชื่อและอีเมลจาก Store */}
           <h2 className="font-headline font-black text-2xl text-on-background mt-4">{user.name}</h2>
           <p className="text-on-surface-variant font-medium text-sm">{user.email}</p>
 
@@ -103,14 +111,14 @@ function Profile() {
                 className="flex-1 py-3 rounded-xl font-bold text-on-surface-variant bg-surface-container-low hover:bg-outline-variant/30 transition-all"
                 disabled={loading}
               >
-                ยกเลิก
+                Cancel
               </button>
               <button 
                 onClick={handleUpload}
                 className="flex-1 py-3 rounded-xl font-bold text-white bg-primary hover:bg-primary-container transition-all flex justify-center items-center gap-2 shadow-md shadow-primary/20"
                 disabled={loading}
               >
-                {loading ? <span className="material-symbols-outlined animate-spin">sync</span> : 'บันทึกรูปภาพ 💾'}
+                {loading ? <span className="material-symbols-outlined animate-spin">sync</span> : 'Save Image 💾'}
               </button>
             </div>
           )}

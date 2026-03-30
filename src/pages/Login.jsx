@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from '../config/axios';
+import useAuthStore from '../store/authStore'; // 💥 1. อิมพอร์ต Store ของเรามาใช้
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -8,12 +9,18 @@ function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // 💥 2. ดึงฟังก์ชัน login ออกมาจาก Store
+  const login = useAuthStore((state) => state.login);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     try {
       const response = await axios.post('/auth/login', { email, password });
-      localStorage.setItem('token', response.data.token);
+      
+      // 💥 3. เรียกใช้ฟังก์ชัน login จาก Zustand แทน localStorage.setItem() ดื้อๆ
+      login(response.data.token);
+      
       navigate('/');
     } catch (error) {
       setError(error.response?.data?.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
@@ -32,8 +39,8 @@ function Login() {
       <main className="w-full max-w-432 flex items-center justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 w-full max-w-6xl items-center gap-12">
 
+          {/* Left Side: Illustration / Info */}
           <div className="hidden lg:flex lg:col-span-7 flex-col pr-12 relative z-10">
-
             <div className="flex items-center gap-3 mb-10">
               <div className="bg-primary p-3 rounded-xl">
                 <span className="material-symbols-outlined text-white text-3xl">fitness_center</span>
@@ -50,7 +57,6 @@ function Login() {
             </p>
 
             {/* แผงข้อมูลเสมือนจริง (Vitality Metrics) */}
-            {/* 💥 เปลี่ยน ambient-shadow เป็น Tailwind เพียวๆ */}
             <div className="relative w-full aspect-[4/3] rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(7,30,39,0.06)] border border-outline-variant/10 bg-surface-container-lowest">
               <img
                 className="absolute inset-0 w-full h-full object-cover"
@@ -58,7 +64,6 @@ function Login() {
                 src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=1200&auto=format&fit=crop"
               />
               <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/50 via-black/10 to-transparent">
-
                 <div className="grid grid-cols-2 gap-x-6 gap-y-4 max-w-lg bg-surface-container-lowest/10 backdrop-blur-[6px] p-6 rounded-3xl border border-white/10">
 
                   <div className="flex items-center gap-4 group">
@@ -92,15 +97,12 @@ function Login() {
                   </div>
                 </div>
               </div>
-
-              {/* แสงเอฟเฟกต์ */}
               <div className="absolute inset-0 bg-gradient-radial from-transparent via-white/5 to-transparent blur-[60px] opacity-40"></div>
             </div>
-
           </div>
+
           {/* Right Side: Login Card */}
           <div className="lg:col-span-5 w-full flex justify-center">
-            {/* 💥 เปลี่ยน ambient-shadow เป็น Tailwind เพียวๆ */}
             <div className="bg-surface-container-lowest p-10 md:p-14 rounded-[2rem] shadow-[0_20px_40px_rgba(7,30,39,0.06)] w-full max-w-md border border-outline-variant/10">
 
               <div className="lg:hidden flex justify-center mb-8">
@@ -116,7 +118,6 @@ function Login() {
               </div>
 
               <form onSubmit={handleLogin} className="space-y-6">
-
                 {/* Email Input */}
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-on-surface-variant ml-1" htmlFor="email">Email Address</label>
@@ -166,7 +167,6 @@ function Login() {
                 )}
 
                 {/* Login Button */}
-                {/* 💥 เปลี่ยน btn-gradient เป็น bg-gradient-to-r ของ Tailwind เพียวๆ */}
                 <button type="submit" className="w-full bg-gradient-to-r from-secondary to-[#fe6f42] text-white font-headline font-bold py-5 rounded-full shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group">
                   Log In
                   <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
@@ -186,7 +186,6 @@ function Login() {
               <div className="mt-6 text-center">
                 <p className="text-on-surface-variant font-medium">
                   Don't have an account?
-                  {/* 💥 แก้ Link ตรงนี้ครับ */}
                   <Link to="/register" className="text-secondary font-bold hover:underline ml-2">Sign up</Link>
                 </p>
               </div>
