@@ -3,6 +3,7 @@
 /* 💥 1. อัญเชิญพลัง Tailwind v4 และตั้งค่าสีของหน้า Login */
 @import "tailwindcss";
 
+
 @theme {
   --color-surface-container-lowest: #ffffff;
   --color-surface-container-low: #e6f6ff;
@@ -19,9 +20,9 @@
   --font-body: "Manrope", sans-serif;
 }
 
-/* ======================================================== */
+
 /* 🛡️ 2. ของเดิมของคุณมล (เก็บไว้เลี้ยงหน้า Feed และหน้าอื่นๆ) */
-/* ======================================================== */
+
 
 :root {
   /* โทนสีหลักจาก Kinetic Vitality 🎨 */
@@ -55,3 +56,5 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+
