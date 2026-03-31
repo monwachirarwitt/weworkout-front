@@ -94,7 +94,7 @@ export default function Home() {
 
             {/* Bio & Medical Notes */}
             <div className="lg:col-span-4 flex flex-col gap-8">
-              <div className="bg-gradient-to-br from-inverse-surface to-[#071e27] p-8 rounded-[2rem] text-white flex-1 ambient-shadow relative overflow-hidden">
+              <div className="bg-white p-8 rounded-[2rem] text-gray-800 flex-1 ambient-shadow relative overflow-hidden">
                 <div className="relative z-10">
                   <h3 className="text-2xl font-black font-headline mb-8 flex items-center gap-3">
                     <span className="w-2 h-8 bg-primary rounded-full"></span> Clinical Profile
@@ -103,13 +103,13 @@ export default function Home() {
                     <div className="space-y-2">
                       <p className="text-primary-fixed-dim text-sm font-bold uppercase tracking-widest">Medical Notes</p>
                       <p className="text-xl leading-relaxed font-medium">
-                        {user?.medicalNotes || "ยังไม่มีข้อมูลทางการแพทย์"}
+                        {user?.medicalNotes || "There is no medical information available"}
                       </p>
                     </div>
                     <div className="space-y-2">
                       <p className="text-primary-fixed-dim text-sm font-bold uppercase tracking-widest">Bio</p>
                       <p className="text-xl leading-relaxed">
-                        {user?.bio || "เล่าเรื่องราวของคุณให้เพื่อนๆ ฟังหน่อยสิ!"}
+                        {user?.bio || "Tell your story to your friends!"}
                       </p>
                     </div>
                   </div>
@@ -175,7 +175,7 @@ export default function Home() {
                 </div>
               ))
             ) : (
-              <p className="col-span-3 text-center text-gray-500 py-10">ยังไม่มีกิจกรรมในตอนนี้ ลองสร้างตี้ของคุณเองดูสิ!</p>
+              <p className="col-span-3 text-center text-gray-500 py-10">There are no events happening right now. Try creating your own party!</p>
             )}
           </div>
 

@@ -49,7 +49,6 @@ function Navbar() {
             <div>
               {/* 💥 5. โชว์ชื่อและ Role จากตัวแปรที่เราดึงมา */}
               <div className="font-headline font-bold text-on-background text-[15px]">{displayName}</div>
-              <div className="font-body text-xs text-on-surface-variant">{displayRole}</div>
             </div>
             
             {/* 💥 6. โชว์รูปโปรไฟล์ */}
