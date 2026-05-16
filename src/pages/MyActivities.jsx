@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
-import useAuthStore from '../store/authStore'; // 💥 1. อิมพอร์ต Store มาใช้
+import useAuthStore from '../store/authStore'; 
 
 function MyActivities() {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // 'all', 'hosted', 'joined'
+ 
+  // 1. การตั้งค่า State
+  const [events, setEvents] = useState([]);      // เก็บรายการกิจกรรมที่เราเป็นคนสร้าง
+  const [loading, setLoading] = useState(true);  // สถานะการรอข้อมูลจาก Backend
   const navigate = useNavigate();
   
-  // 💥 2. ดึง token และ user(เพื่อเอา id มาเช็คว่าเป็น host/join) จาก Store โดยตรง
+  // 2. ดึงข้อมูลจาก Zustand (กระเป๋าข้อมูลส่วนกลาง)
   const { token, user: currentUser } = useAuthStore();
 
+  // 3. การดึงข้อมูลเมื่อเปิดหน้าเว็บ
   useEffect(() => {
-    // 💥 3. เช็คจาก Token ใน Store ถ้าไม่มีให้เตะออก
+    // 🛡️ ระบบรปภ.: ถ้ายังไม่ Login (ไม่มี Token) ให้เตะไปหน้า Login ทันที
     if (!token) {
       navigate('/login');
       return;
@@ -21,179 +23,137 @@ function MyActivities() {
 
     const fetchMyActivities = async () => {
       try {
+        // ยิง API ไปขอรายการ Event ทั้งหมด (พร้อมแนบ Token เพื่อยืนยันตัวตน)
         const response = await axios.get('/event', { 
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        setEvents(response.data.events || response.data || []); 
+        // 🧠 ลอจิกหัวใจสำคัญ: กรองเฉพาะ Event ที่ hostId ตรงกับ id ของเราเท่านั้น
+        // เพื่อให้หน้าจอนี้แสดงแค่ "ตี้ที่เราเป็นเจ้าของ" อย่างเดียวตามที่คุณมลต้องการ
+        const allEvents = response.data.events || response.data || [];
+        const myHostedEvents = allEvents.filter(event => event.hostId === currentUser?.id);
+        
+        setEvents(myHostedEvents); 
       } catch (error) {
-        console.error('Failed to load activities:', error);
+        console.error('Failed to load hosted activities:', error);
       } finally {
-        setLoading(false);
+        setLoading(false); // ปิดหน้าจอโหลดดิ้ง
       }
     };
     
-    fetchMyActivities();
-  }, [navigate, token]);
+    fetchMyActivities(); 
+  }, [navigate, token, currentUser?.id]); 
 
+  // 4. ฟังก์ชันจัดการรูปหน้าปกแบบ Dynamic
   const getCoverImage = (category) => {
     switch(category) {
       case 'Football': return 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=800&auto=format&fit=crop';
       case 'Basketball': return 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=crop';
       case 'Running': return 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=800&auto=format&fit=crop';
-      case 'Badminton': return 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=800&auto=format&fit=crop';
+      case 'Fitness': return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop';
       default: return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop';
     }
   };
 
-  // 🧠 Logic กรองข้อมูลโดยใช้ currentUser.id จาก Store
-  const filteredEvents = events.filter(event => {
-    if (filter === 'all') return true;
-    
-    // ถ้าเลือก tab 'hosted' ให้โชว์เฉพาะที่เราเป็นคนสร้าง
-    if (filter === 'hosted') return event.hostId === currentUser?.id;
-    
-    // ถ้าเลือก tab 'joined' ให้โชว์ที่เราเป็นแค่ลูกตี้
-    if (filter === 'joined') {
-      return event.participants?.some(p => p.userId === currentUser?.id) && event.hostId !== currentUser?.id;
-    }
-    return true;
-  });
-
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 relative overflow-hidden font-body pb-20">
       
-      {/* Background Decorations */}
+      {/* 🎨 ส่วนตกแต่งพื้นหลัง (Floating Cards) */}
       <div className="absolute top-10 -left-10 w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden rotate-[-15deg] opacity-50 shadow-2xl pointer-events-none hidden lg:block border-4 border-white/50 blur-[2px]">
         <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=600&auto=format&fit=crop" alt="Running" className="w-full h-full object-cover" />
       </div>
       <div className="absolute top-20 -right-10 w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden rotate-[12deg] opacity-50 shadow-2xl pointer-events-none hidden lg:block border-4 border-white/50 blur-[2px]">
         <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=600&auto=format&fit=crop" alt="Basketball" className="w-full h-full object-cover" />
       </div>
-      <div className="absolute bottom-20 -left-10 w-64 h-64 md:w-72 md:h-72 rounded-3xl overflow-hidden rotate-[10deg] opacity-40 shadow-2xl pointer-events-none hidden lg:block border-4 border-white/50 blur-[3px]">
-        <img src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600&auto=format&fit=crop" alt="Football" className="w-full h-full object-cover" />
-      </div>
-      <div className="absolute -bottom-10 right-10 w-64 h-64 md:w-72 md:h-72 rounded-3xl overflow-hidden rotate-[-20deg] opacity-40 shadow-2xl pointer-events-none hidden lg:block border-4 border-white/50 blur-[2px]">
-        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop" alt="Fitness" className="w-full h-full object-cover" />
-      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-16">
         
-        {/* Header Section */}
+        {/* 📝 Header Section: ปรับคำโปรยให้ชัดเจนว่าเป็นงานที่เราสร้าง */}
         <div className="text-center mb-12">
           <h1 className="font-headline font-black text-5xl md:text-6xl text-on-background mb-4 tracking-tight">
-            My <span className="text-primary">Activities</span>
+            Hosted <span className="text-primary">Activities</span>
           </h1>
           <p className="text-on-surface-variant text-lg md:text-xl max-w-2xl mx-auto">
-            Your workout history, including activities you host and join.
+             Manage and track the sports events you have organized.
           </p>
         </div>
 
-        {/* 🗂️ Filter Tabs */}
-        <div className="flex justify-center mb-12">
-          <div className="bg-surface-container-lowest p-1.5 rounded-full shadow-sm border border-outline-variant/20 inline-flex gap-1">
-            <button 
-              onClick={() => setFilter('all')}
-              className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${filter === 'all' ? 'bg-primary text-white shadow-md' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
-            >
-              All Activities
-            </button>
-            <button 
-              onClick={() => setFilter('hosted')}
-              className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${filter === 'hosted' ? 'bg-primary text-white shadow-md' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
-            >
-              Hosted
-            </button>
-            <button 
-              onClick={() => setFilter('joined')}
-              className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${filter === 'joined' ? 'bg-primary text-white shadow-md' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
-            >
-              Joined
-            </button>
-          </div>
-        </div>
-
-        {/* Loading & Empty States */}
+        {/* 🚀 ส่วนแสดงผลข้อมูล */}
         {loading ? (
           <div className="text-center py-20 text-on-surface-variant font-bold text-xl flex flex-col items-center gap-4">
             <span className="material-symbols-outlined animate-spin text-4xl text-primary">sync</span>
-            Loading activities...
+            Loading your activities...
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            {filteredEvents.length === 0 && !loading && (
+            {/* ⚠️ กรณีไม่มีตี้ที่เราสร้างเลย: แสดงปุ่มชวนไปสร้างตี้ใหม่ */}
+            {events.length === 0 ? (
               <div className="col-span-full flex flex-col items-center justify-center py-16 text-on-surface-variant bg-surface-container-lowest/50 rounded-[2rem] border border-dashed border-outline-variant/50">
-                <span className="material-symbols-outlined text-6xl text-outline-variant mb-4">sports_score</span>
-                <p className="text-lg font-bold mb-2">No activities found in this category</p>
-                <p className="text-sm">Find new activities or create your own!</p>
-                <button onClick={() => navigate('/activities')} className="mt-6 bg-primary/10 text-primary font-bold py-2 px-6 rounded-full hover:bg-primary hover:text-white transition-all">
-                  Find Activities
+                <span className="material-symbols-outlined text-6xl text-outline-variant mb-4">post_add</span>
+                <p className="text-lg font-bold mb-2">You haven't hosted any activities yet.</p>
+                <p className="text-sm">Start building your sports community today!</p>
+                <button onClick={() => navigate('/create')} className="mt-6 bg-primary text-white font-bold py-3 px-8 rounded-full hover:scale-105 transition-all shadow-md">
+                  Create First Activity
                 </button>
               </div>
-            )}
-
-            {/* Event Cards */}
-            {filteredEvents.map((event) => (
-              <div key={event.id} className="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_15px_30px_rgba(0,0,0,0.06)] border border-outline-variant/10 flex flex-col hover:-translate-y-2 transition-transform duration-300 group">
-                
-                {/* Cover Image & Badges */}
-                <div className="relative h-48 overflow-hidden">
-                  <img src={getCoverImage(event.category)} alt={event.category} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            ) : (
+              // ✅ กรณีมีตี้: วนลูปโชว์การ์ดกิจกรรม
+              events.map((event) => (
+                <div key={event.id} className="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_15px_30px_rgba(0,0,0,0.06)] border border-outline-variant/10 flex flex-col hover:-translate-y-2 transition-transform duration-300 group">
                   
-                  {/* Category Badge */}
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-black text-primary uppercase tracking-wider shadow-sm">
-                    {event.category || 'SPORT'}
-                  </div>
+                  <div className="relative h-48 overflow-hidden">
+                    <img src={getCoverImage(event.category)} alt={event.category} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    
+                    {/* Badge ประเภทกีฬา */}
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-black text-primary uppercase tracking-wider shadow-sm">
+                      {event.category || 'SPORT'}
+                    </div>
 
-                  {/* Role Badge (Host vs Joined) */}
-                  {event.hostId === currentUser?.id ? (
+                    {/* สติกเกอร์ HOST ติดตัวโตๆ */}
                     <div className="absolute top-4 right-4 bg-secondary text-white px-3 py-1 rounded-full text-xs font-black flex items-center gap-1 shadow-sm">
                       <span className="material-symbols-outlined text-[14px]">star</span> HOST
                     </div>
-                  ) : (
-                    <div className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-black flex items-center gap-1 shadow-sm">
-                      <span className="material-symbols-outlined text-[14px]">check_circle</span> JOINED
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-6 flex flex-col flex-1">
-                  <h3 className="font-headline font-black text-xl text-on-background mb-3 line-clamp-1">{event.title}</h3>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-on-surface-variant font-medium">
-                      <span className="material-symbols-outlined text-primary text-[18px]">calendar_month</span>
-                      {new Date(event.eventDate).toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' })} • {event.startTime}
-                    </div>
-                    <div className="flex items-start gap-2 text-sm text-on-surface-variant font-medium">
-                      <span className="material-symbols-outlined text-primary text-[18px]">location_on</span>
-                      <span className="line-clamp-1">{event.locationName}</span>
-                    </div>
                   </div>
 
-                  <p className="text-sm text-on-surface-variant/80 line-clamp-2 mb-6 flex-1">
-                    {event.description}
-                  </p>
-
-                  <div className="border-t border-outline-variant/20 pt-4 flex items-center justify-between mt-auto">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-outline uppercase tracking-wider">Status</span>
-                      <span className="font-bold text-secondary">
-                        {new Date(event.eventDate) < new Date() ? 'Completed ✅' : 'Upcoming ⏳'}
-                      </span>
+                  <div className="p-6 flex flex-col flex-1">
+                    <h3 className="font-headline font-black text-xl text-on-background mb-3 line-clamp-1">{event.title}</h3>
+                    
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center gap-2 text-sm text-on-surface-variant font-medium">
+                        <span className="material-symbols-outlined text-primary text-[18px]">calendar_month</span>
+                        {new Date(event.eventDate).toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' })} • {event.startTime}
+                      </div>
+                      <div className="flex items-start gap-2 text-sm text-on-surface-variant font-medium">
+                        <span className="material-symbols-outlined text-primary text-[18px]">location_on</span>
+                        <span className="line-clamp-1">{event.locationName}</span>
+                      </div>
                     </div>
-                    <button 
-                      onClick={() => navigate(`/event/${event.id}`)}
-                      className="bg-surface-container-low text-primary border border-primary/20 font-bold py-2 px-5 rounded-full hover:bg-primary hover:text-white transition-all"
-                    >
-                      Manage
-                    </button>
-                  </div>
 
+                    <p className="text-sm text-on-surface-variant/80 line-clamp-2 mb-6 flex-1 italic">
+                      "{event.description}"
+                    </p>
+
+                    <div className="border-t border-outline-variant/20 pt-4 flex items-center justify-between mt-auto">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-outline uppercase tracking-wider">Event Status</span>
+                        <span className="font-bold text-secondary">
+                          {new Date(event.eventDate) < new Date() ? 'Completed ✅' : 'Upcoming ⏳'}
+                        </span>
+                      </div>
+                      {/* ปุ่ม Manage เพื่อเข้าไปรับคนหรือลบตี้ */}
+                      <button 
+                        onClick={() => navigate(`/event/${event.id}`)}
+                        className="bg-surface-container-low text-primary border border-primary/20 font-bold py-2 px-5 rounded-full hover:bg-primary hover:text-white transition-all"
+                      >
+                        Manage
+                      </button>
+                    </div>
+
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>

@@ -5,7 +5,8 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // 💥 2. ดึง user, token และฟังก์ชัน logout ออกมาจาก Store เลย
+  //  2. ดึง user, token และฟังก์ชัน logout ออกมาจาก Store
+  // user คือ obj ก้อนใหญ่ มีข้อมูลครบทุกอย่าง รอเราเข้าไปเจาะมันมาใช้
   const { user, token, logout } = useAuthStore();
 
   // 💥 3. เปลี่ยนเงื่อนไขซ่อน Navbar โดยอิงจาก token ใน Store
@@ -15,7 +16,7 @@ function Navbar() {
 
   // 💥 4. สร้างตัวแปรดึงชื่อและรูป เพื่อความชัวร์ (ถ้าข้อมูลยังไม่มา ให้มี Fallback)
   const displayName = user?.name || 'Athletic User';
-  const displayRole = user?.role || 'Pro Runner'; // ใน DB เราไม่มี role เลยใส่ค่าแข็งไว้ก่อนตามดีไซน์เดิม
+  //เจาะมันมาใช้
   const profileImageUrl = user?.profileImageUrl || '';
 
   return (

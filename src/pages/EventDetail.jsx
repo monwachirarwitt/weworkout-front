@@ -7,8 +7,7 @@ function EventDetail() {
   const { id } = useParams(); 
   const navigate = useNavigate();
   
-  // 💥 2. ดึง token และ user ออกมาจาก Zustand 
-  // (ไม่ต้องมานั่งใช้ atob() ถอดรหัสหา ID อีกต่อไป!)
+  //  2. ดึง token และ user ออกมาจาก Zustand 
   const { token, user: currentUser } = useAuthStore();
 
   const [event, setEvent] = useState(null);
@@ -16,6 +15,9 @@ function EventDetail() {
   const [newComment, setNewComment] = useState(''); 
   const [loading, setLoading] = useState(true);
 
+
+
+  //พอหน้าจอวาดเสร็จปุ๊บ โค้ดชุดนี้จะทำงานทันทีเพื่อเช็กว่า "เฮ้ย! คนที่เข้ามาเนี่ย มีบัตรผ่าน (Token) หรือเปล่า?"
   useEffect(() => {
     // ถ้าไม่มี Token ให้เตะกลับไปหน้า Login
     if (!token) {
@@ -23,19 +25,34 @@ function EventDetail() {
       return;
     }
 
+// สร้างฟังก์ชันแบบ Asynchronous เพื่อจัดการการดึงข้อมูลจาก API
     const fetchData = async () => {
       try {
-        const eventRes = await axios.get(`/event/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        // 1. ดึงข้อมูลรายละเอียดของ Event (ใช้ id จาก URL หรือ State)
+        // มีการส่ง Header 'Authorization' พร้อม Token (JWT) เพื่อยืนยันสิทธิ์เข้าถึงข้อมูล
+        const eventRes = await axios.get(`/event/${id}`, { 
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+        // เมื่อได้ข้อมูลมาแล้ว (response.data) ก็นำไปเก็บไว้ใน State ชื่อ event
         setEvent(eventRes.data);
 
-        const commentRes = await axios.get(`/event/${id}/comments`, { headers: { Authorization: `Bearer ${token}` } });
+        // 2. ดึงข้อมูลคอมเมนต์ที่เกี่ยวข้องกับ Event นี้
+        const commentRes = await axios.get(`/event/${id}/comments`, { 
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+        // นำข้อมูลคอมเมนต์ไปเก็บไว้ใน State ชื่อ comments
         setComments(commentRes.data);
+
       } catch (error) {
+        // หากเกิด Error ระหว่างดึงข้อมูล (เช่น Token หมดอายุ หรือหาข้อมูลไม่เจอ) ให้แสดง Error ใน Console
         console.error('Fetch data failed:', error);
       } finally {
+        // ไม่ว่าจะสำเร็จหรือพัง ให้ปิดสถานะ Loading (เพื่อให้หน้าจอหยุดแสดงไอคอนหมุนๆ)
         setLoading(false);
       }
     };
+
+    // เรียกใช้งานฟังก์ชันที่เขียนไว้ข้างบน
     fetchData();
   }, [id, token, navigate]);
 
@@ -50,40 +67,86 @@ function EventDetail() {
     }
   };
 
-  // ฟังก์ชันส่งข้อความแชท
+// ฟังก์ชันสำหรับจัดการการส่งข้อความแชท/คอมเมนต์
   const handleSendComment = async (e) => {
-    e.preventDefault();
+    // 🛑 เบรกบราวเซอร์ไว้ก่อน! 
+    // ปกติพอกด Submit Form บราวเซอร์จะรีเฟรชหน้าเว็บทิ้ง (Default Behavior)
+    // เราสั่ง e.preventDefault() เพื่อบอกว่า "ไม่ต้องรีเฟรชหน้า" ให้หยุดรออยู่ที่หน้าเดิม 
+    // เพื่อให้โค้ด JavaScript (Axios) ด้านล่างรันต่อจนจบ
+    e.preventDefault(); 
+
+    // ตรวจสอบความว่างเปล่า: ถ้าไม่ได้พิมพ์อะไรมาเลย หรือพิมพ์แค่ช่องว่าง (Space) ก็ไม่ต้องทำอะไรต่อ
     if (!newComment.trim()) return;
+
     try {
-      await axios.post(`/event/${id}/comments`, { message: newComment }, { headers: { Authorization: `Bearer ${token}` } });
+      // ยิง API ไปที่หลังบ้านเพื่อบันทึกคอมเมนต์ลง Database
+      // ส่ง Object { message: newComment } ไปใน Body 
+      // และแนบบัตรผ่าน (Token) ไปใน Header เพื่อยืนยันตัวตน
+      await axios.post(`/event/${id}/comments`, 
+        { message: newComment }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // เมื่อส่งสำเร็จ: ล้างช่องพิมพ์ให้ว่างเปล่าเหมือนเดิม เตรียมพร้อมรับข้อความถัดไป
       setNewComment(''); 
+
+      // ทำการรีโหลดหน้าจอใหม่ เพื่อดึงข้อมูลคอมเมนต์ล่าสุดจาก Database มาโชว์บนหน้าเว็บ
+      // (ถ้าใช้ React-Query ในอนาคต เราจะไม่ต้องสั่งรีโหลดแบบนี้แล้วครับ)
       window.location.reload(); 
+
     } catch (error) {
+      // หากส่งไม่สำเร็จ (เช่น เน็ตหลุด หรือ Token หมดอายุ) ให้แจ้งเตือน Error
       alert('❌ Failed to send comment: ' + (error.response?.data?.error || error.message));
     }
   };
 
-  // ฟังก์ชันสำหรับ Host เอาไว้เตะหรือรับคนเข้าตี้
+
+// ฟังก์ชันสำหรับเจ้าของตี้ (Host) ใช้จัดการสถานะของคนที่มาขอเข้าร่วม
+  // รับพารามิเตอร์ 2 ตัวคือ: ID ของคนที่จะจัดการ และ สถานะใหม่ (เช่น 'ACCEPTED' หรือ 'REJECTED')
   const handleManageParticipant = async (participantId, status) => {
     try {
+      // ยิง API แบบ PUT เพื่อไปแก้ไขข้อมูลสมาชิกในตี้ (Update)
+      // ส่งสถานะใหม่ { status: status } ไปที่ URL เฉพาะของสมาชิกคนนั้น
       await axios.put(`/event/${id}/participants/${participantId}`, 
         { status: status }, 
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } } // ยืนยันว่าเราคือ Host ที่มีสิทธิ์สั่งการ
       );
+
+      // เมื่ออัปเดตสถานะสำเร็จ (เช่น กด Accept ปุ๊บ)
+      // ให้รีเฟรชหน้าเว็บเพื่อให้เห็นสถานะล่าสุดในรายการ Participants
       window.location.reload(); 
+
     } catch (error) {
+      // หากเกิดข้อผิดพลาด (เช่น เราไม่ใช่เจ้าของตี้ หรือหลังบ้านมีปัญหา)
+      // ให้โชว์ Alert บอก Error ที่ส่งกลับมาจาก Server
       alert('❌ Failed to update status: ' + (error.response?.data?.error || error.message));
     }
   };
 
-  // 💥 3. ฟังก์ชันสำหรับลบตี้ (Delete Activity)
+// 💥 ฟังก์ชันสำหรับเจ้าของตี้ (Host) ใช้ลบกิจกรรมทิ้งถาวร
   const handleDelete = async () => {
+    // ✋ ขั้นตอนที่ 1: เช็คซ้ำเพื่อความชัวร์ (Confirmation)
+    // ใช้ window.confirm เพื่อเด้ง Pop-up ถามผู้ใช้ก่อน เพราะถ้าลบแล้วข้อมูลใน Database จะหายถาวร (Undo ไม่ได้)
+    // ถ้าผู้ใช้กด "OK" เงื่อนไขจะเป็น true และเริ่มทำงานใน try
     if (window.confirm("Are you sure you want to delete this activity? This cannot be undone.")) {
       try {
-        await axios.delete(`/event/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        // 🚀 ขั้นตอนที่ 2: ส่งคำสั่งลบไปยัง Backend
+        // ใช้ axios.delete และแนบ id ของกิจกรรมที่ต้องการลบไปใน URL
+        // พร้อมส่ง Header Authorization (Token) เพื่อพิสูจน์ว่า "เราคือเจ้าของตี้ตัวจริง" ถึงจะมีสิทธิ์ลบ
+        await axios.delete(`/event/${id}`, { 
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+
+        // 🎊 ขั้นตอนที่ 3: แจ้งเตือนเมื่อลบสำเร็จ
         alert('🗑️ Activity deleted successfully!');
-        navigate('/'); // ลบเสร็จแล้วเด้งกลับหน้า Feed หลัก
+
+        // 🏠 ขั้นตอนที่ 4: พาย้ายบ้าน
+        // พอดึงข้อมูลหน้านี้ไม่ได้แล้ว (เพราะโดนลบไปแล้ว) เราจึงต้องใช้ navigate('/') 
+        // เพื่อพาผู้ใช้เด้งกลับไปที่หน้า Feed หลัก (Home) ทันที
+        navigate('/'); 
+
       } catch (error) {
+        // ❌ หากเกิดข้อผิดพลาด (เช่น ไม่ใช่เจ้าของตี้ หรือ Server มีปัญหา) ให้แจ้งเตือน Error
         alert('❌ Failed to delete: ' + (error.response?.data?.error || error.message));
       }
     }
@@ -100,9 +163,8 @@ function EventDetail() {
     }
   };
 
-  // ----------------------------------------------------------------------
+
   // โซนแสดงผล (UI)
-  // ----------------------------------------------------------------------
 
   // หน้าโหลดข้อมูล
   if (loading) return (

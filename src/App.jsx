@@ -29,7 +29,7 @@ function App() {
         <Route path="/activities" element={<FindActivities />} /> 
         <Route path="/my-activities" element={<MyActivities />} /> 
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} /> 
+        <Route path="/registers" element={<Register />} /> 
         <Route path="/event/:id" element={<EventDetail />} />
         <Route path="/create" element={<CreateActivity />} /> 
         <Route path="/profile" element={<Profile />} /> 

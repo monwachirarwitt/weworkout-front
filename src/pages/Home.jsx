@@ -46,11 +46,6 @@ export default function Home() {
             <p className="text-xl md:text-2xl text-on-surface-variant font-medium max-w-xl mb-10 leading-relaxed">
               Your sanctuary for community-driven sports and wellness tracking. Connect with athletes, find activities, and reach your peak.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link to="/find-activities" className="px-8 py-4 rounded-full bg-gradient-to-r from-primary to-primary-container text-white font-bold text-lg ambient-shadow hover:scale-105 transition-transform flex items-center gap-2">
-                Start Exploring <span className="material-symbols-outlined">arrow_forward</span>
-              </Link>
-            </div>
           </div>
         </div>
         <div className="absolute right-[-10%] bottom-[10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -z-10"></div>
@@ -177,14 +172,6 @@ export default function Home() {
             ) : (
               <p className="col-span-3 text-center text-gray-500 py-10">There are no events happening right now. Try creating your own party!</p>
             )}
-          </div>
-
-          <div className="mt-20 flex justify-center">
-            <Link to="/find-activities">
-              <button className="px-12 py-5 rounded-full bg-surface-container-low text-primary font-bold text-lg ambient-shadow border border-primary/10 hover:bg-primary/5 transition-all flex items-center gap-3">
-                Discover More Activities <span className="material-symbols-outlined">explore</span>
-              </button>
-            </Link>
           </div>
         </div>
       </section>

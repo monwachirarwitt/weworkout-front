@@ -10,28 +10,33 @@ function Register() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+const handleRegister = async (e) => {
     e.preventDefault();
-    setError(''); 
-    
+    setError('');
+
+    // 1. ตรวจสอบรหัสผ่านฝั่งหน้าบ้านก่อนส่งไป API
     if (password !== confirmPassword) {
       setError('รหัสผ่านไม่ตรงกันครับ ตรวจสอบอีกทีนะ!');
       return;
     }
 
     try {
-      // ยิง API ไปหลังบ้าน (สมมติว่า Path คือ /auth/register)
+      // 2. ยิง API ไปหลังบ้าน
       await axios.post('/auth/register', { name, email, password });
+      
+      // 3. ถ้าสำเร็จ แจ้งเตือนและพากลับไปหน้า Login
       alert('🎉 สมัครสมาชิกสำเร็จ! ไปล็อกอินกันเลย!');
-      navigate('/login'); // สมัครเสร็จเด้งไปหน้า Login
+      navigate('/login'); 
+      
     } catch (error) {
+      // 4. ถ้ามี Error ให้ดึงข้อความจากหลังบ้านมาแสดง (ป้องกันแอปพังด้วย ?.)
       setError(error.response?.data?.error || 'เกิดข้อผิดพลาดในการสมัครสมาชิก');
     }
   };
 
   return (
     <div className="bg-background font-body text-on-background min-h-screen flex items-center justify-center p-6 relative z-10 overflow-hidden">
-      
+
       {/* Background Decoration */}
       <div className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none">
         <div className="absolute -top-[10%] -left-[5%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]"></div>
@@ -40,7 +45,7 @@ function Register() {
 
       <main className="w-full max-w-[1728px] flex items-center justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 w-full max-w-6xl items-center gap-12">
-          
+
           {/* ซ้ายมือ: รูปภาพและคำโปรย (ล้อมาจาก Login) */}
           <div className="hidden lg:flex lg:col-span-7 flex-col pr-12 relative z-10">
             <div className="flex items-center gap-3 mb-10">
@@ -50,17 +55,17 @@ function Register() {
               <span className="font-headline font-black text-3xl text-primary-container tracking-tight">WeWorkout</span>
             </div>
             <h1 className="font-headline font-extrabold text-6xl text-on-background leading-tight mb-8">
-              Join the <span className="text-primary">Movement.</span> <br/>
+              Join the <span className="text-primary">Movement.</span> <br />
             </h1>
             <p className="text-on-surface-variant text-xl max-w-md leading-relaxed mb-12">
               Create an account to find your next workout partner and discover activities near you.
             </p>
-            
+
             <div className="relative w-full aspect-[4/3] rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(7,30,39,0.06)] border border-outline-variant/10 bg-surface-container-lowest">
-              <img 
-                className="absolute inset-0 w-full h-full object-cover" 
-                alt="Active lifestyle" 
-                src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1200&auto=format&fit=crop" 
+              <img
+                className="absolute inset-0 w-full h-full object-cover"
+                alt="Active lifestyle"
+                src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1200&auto=format&fit=crop"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
             </div>
@@ -69,7 +74,7 @@ function Register() {
           {/* ขวามือ: ฟอร์มสมัครสมาชิก */}
           <div className="lg:col-span-5 w-full flex justify-center">
             <div className="bg-surface-container-lowest p-10 md:p-14 rounded-[2rem] shadow-[0_20px_40px_rgba(7,30,39,0.06)] w-full max-w-md border border-outline-variant/10">
-              
+
               <div className="lg:hidden flex justify-center mb-8">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary text-4xl">fitness_center</span>
@@ -83,7 +88,7 @@ function Register() {
               </div>
 
               <form onSubmit={handleRegister} className="space-y-5">
-                
+
                 {/* Name Input */}
                 <div className="space-y-1">
                   <label className="block text-sm font-bold text-on-surface-variant ml-1">Name</label>
@@ -91,13 +96,22 @@ function Register() {
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <span className="material-symbols-outlined text-on-surface-variant text-xl">person</span>
                     </div>
-                    <input 
-                      type="text" 
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="block w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background" 
-                      placeholder="Your name" 
-                      required
+                    <input
+                      type="text"           // บอก Browser ว่า "นี่คือช่องกรอกตัวอักษรนะ"
+                      value={name}         // [ด่านตรวจ] บังคับให้ตัวอักษรที่โชว์บนจอ "ต้องตรงกับ" ค่าในตัวแปร name เสมอ
+
+                      // [เหตุการณ์สำคัญ] เกิดขึ้นทุกครั้งที่มีการขยับเขยื้อนในช่องนี้
+                      onChange={(e) => {
+                        // 1. e.target.value คือ "สิ่งที่ User พยายามจะเปลี่ยน" (เช่น พิมพ์ตัว 'A' เพิ่มเข้าไป)
+                        // 2. setName() คือการบอก React ว่า "เฮ้ย! อัปเดตตัวแปร name ให้เป็นค่าใหม่เดี๋ยวนี้"
+                        setName(e.target.value);
+                      }}
+
+                      // เสื้อผ้าหน้าผม: จัดระเบียบ ความกว้าง (w-full), ขอบมน (rounded-2xl), สีพื้นหลัง (bg-...)
+                      className="block w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background"
+
+                      placeholder="Your name"           // ข้อความจางๆ ที่บอกว่า "กรุณากรอกชื่อของคุณ"
+                      required                          // กฎเหล็กของ Browser: "ถ้าไม่กรอก ห้ามกดส่งเด็ดขาด!"
                     />
                   </div>
                 </div>
@@ -109,12 +123,12 @@ function Register() {
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <span className="material-symbols-outlined text-on-surface-variant text-xl">mail</span>
                     </div>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="block w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background" 
-                      placeholder="name@example.com" 
+                      className="block w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background"
+                      placeholder="name@example.com"
                       required
                     />
                   </div>
@@ -127,12 +141,12 @@ function Register() {
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <span className="material-symbols-outlined text-on-surface-variant text-xl">lock</span>
                     </div>
-                    <input 
-                      type="password" 
+                    <input
+                      type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="block w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background" 
-                      placeholder="••••••••" 
+                      className="block w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background"
+                      placeholder="••••••••"
                       required
                     />
                   </div>
@@ -145,12 +159,12 @@ function Register() {
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <span className="material-symbols-outlined text-on-surface-variant text-xl">lock_reset</span>
                     </div>
-                    <input 
-                      type="password" 
+                    <input
+                      type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="block w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background" 
-                      placeholder="••••••••" 
+                      className="block w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none text-on-background"
+                      placeholder="••••••••"
                       required
                     />
                   </div>
@@ -172,7 +186,7 @@ function Register() {
 
               <div className="mt-8 text-center">
                 <p className="text-on-surface-variant font-medium">
-                  Already have an account? 
+                  Already have an account?
                   <Link to="/login" className="text-primary font-bold hover:underline ml-2">Log in</Link>
                 </p>
               </div>
