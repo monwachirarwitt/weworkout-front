@@ -104,7 +104,7 @@ function FindActivities() {
             กำลังรวบรวมตี้สุดมันส์ให้คุณ...
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 w-full">
             
             {/* กรณีไม่มีข้อมูลกิจกรรมเลย */}
             {filteredEvents.length === 0 && (
