@@ -30,7 +30,7 @@ function Navbar() {
           <span className="hidden sm:block font-headline font-black text-2xl text-primary-container tracking-tight">WeWorkout</span>
         </Link>
 
-        <div className="flex items-center gap-3 md:gap-8 font-body font-bold text-[12px] md:text-sm">
+        <div className="hidden md:flex items-center gap-3 lg:gap-8 font-body font-bold text-[12px] md:text-sm">
           <Link to="/" className={`py-2 whitespace-nowrap border-b-2 transition-all ${isActive('/') ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-primary hover:border-primary/30'}`}>
             Home
           </Link>
@@ -45,7 +45,7 @@ function Navbar() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
           <div className="hidden md:flex items-center gap-3 text-right">
             <div>
               {/* 💥 5. โชว์ชื่อและ Role จากตัวแปรที่เราดึงมา */}

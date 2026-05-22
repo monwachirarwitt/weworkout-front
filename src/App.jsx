@@ -1,6 +1,7 @@
 import { useEffect } from 'react'; // 💥 1. อิมพอร์ต useEffect
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar'; 
+import BottomNavigation from './components/BottomNavigation';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home'; 
@@ -24,16 +25,20 @@ function App() {
     <>
       <Navbar /> 
       
-      <Routes>
-        <Route path="/" element={<Home />} /> 
-        <Route path="/activities" element={<FindActivities />} /> 
-        <Route path="/my-activities" element={<MyActivities />} /> 
-        <Route path="/login" element={<Login />} />
-        <Route path="/registers" element={<Register />} /> 
-        <Route path="/event/:id" element={<EventDetail />} />
-        <Route path="/create" element={<CreateActivity />} /> 
-        <Route path="/profile" element={<Profile />} /> 
-      </Routes>
+      <main className="pb-20 md:pb-0">
+        <Routes>
+          <Route path="/" element={<Home />} /> 
+          <Route path="/activities" element={<FindActivities />} /> 
+          <Route path="/my-activities" element={<MyActivities />} /> 
+          <Route path="/login" element={<Login />} />
+          <Route path="/registers" element={<Register />} /> 
+          <Route path="/event/:id" element={<EventDetail />} />
+          <Route path="/create" element={<CreateActivity />} /> 
+          <Route path="/profile" element={<Profile />} /> 
+        </Routes>
+      </main>
+
+      <BottomNavigation />
     </>
   );
 }
