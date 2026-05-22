@@ -96,7 +96,7 @@ function CreateActivity() {
       </div>
 
       {/* 📦 กล่องฟอร์มหลัก */}
-      <div className="relative z-10 w-full max-w-[650px] bg-surface-container-lowest p-8 md:p-12 rounded-[2rem] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-outline-variant/20">
+      <div className="relative z-10 w-full max-w-[650px] mx-auto bg-surface-container-lowest p-8 md:p-12 rounded-[2rem] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-outline-variant/20">
         
         <h2 className="text-3xl font-headline font-black text-primary text-center mb-8">Create Activity</h2>
         

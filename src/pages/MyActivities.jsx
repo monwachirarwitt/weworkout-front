@@ -85,7 +85,7 @@ function MyActivities() {
             Loading your activities...
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
             
             {/* ⚠️ กรณีไม่มีตี้ที่เราสร้างเลย: แสดงปุ่มชวนไปสร้างตี้ใหม่ */}
             {events.length === 0 ? (

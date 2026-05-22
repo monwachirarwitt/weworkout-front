@@ -10,11 +10,11 @@ function BottomNavigation() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant/20 z-50 pb-safe">
-      <div className="flex justify-around items-center h-16">
+    <nav className="fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant/20 z-50 pb-safe shrink-0">
+      <div className="flex justify-around items-center h-16 max-w-2xl mx-auto">
         
-        <Link to="/" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isActive('/') ? 'text-primary' : 'text-on-surface-variant'}`}>
-          <span className="material-symbols-outlined text-2xl">{isActive('/') ? 'home' : 'home'}</span>
+        <Link to="/activities" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isActive('/activities') || isActive('/') ? 'text-primary' : 'text-on-surface-variant'}`}>
+          <span className="material-symbols-outlined text-2xl">{isActive('/activities') || isActive('/') ? 'home' : 'home'}</span>
           <span className="text-[10px] font-bold">Find</span>
         </Link>
         

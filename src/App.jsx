@@ -1,10 +1,9 @@
 import { useEffect } from 'react'; // 💥 1. อิมพอร์ต useEffect
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar'; 
 import BottomNavigation from './components/BottomNavigation';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Home from './pages/Home'; 
 import FindActivities from './pages/FindActivities'; 
 import MyActivities from './pages/MyActivities'; 
 import EventDetail from './pages/EventDetail';
@@ -22,12 +21,12 @@ function App() {
   }, [fetchMe]);
 
   return (
-    <>
+    <div className="w-full max-w-7xl mx-auto min-h-screen bg-background relative flex flex-col">
       <Navbar /> 
       
-      <main className="pb-20 md:pb-0">
+      <main className="flex-1 pb-20 md:pb-0">
         <Routes>
-          <Route path="/" element={<Home />} /> 
+          <Route path="/" element={<Navigate to="/activities" replace />} /> 
           <Route path="/activities" element={<FindActivities />} /> 
           <Route path="/my-activities" element={<MyActivities />} /> 
           <Route path="/login" element={<Login />} />
@@ -39,7 +38,7 @@ function App() {
       </main>
 
       <BottomNavigation />
-    </>
+    </div>
   );
 }
 

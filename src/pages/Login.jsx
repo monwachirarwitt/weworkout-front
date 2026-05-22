@@ -25,8 +25,8 @@ function Login() {
       // เมื่อสำเร็จ: เรียกฟังก์ชัน login(token) เพื่อเก็บ Token เข้า Store และ LocalStorage
       login(response.data.token);
       
-      // เมื่อบันทึกสำเร็จ: ส่งผู้ใช้ไปที่หน้า Home (/) ทันที
-      navigate('/');
+      // เมื่อบันทึกสำเร็จ: ส่งผู้ใช้ไปที่หน้า Find Activities ทันที
+      navigate('/activities');
     } catch (error) {
       // เมื่อล้มเหลว: ดึงข้อความ Error จากฝั่ง Server มาแสดงผล
       setError(error.response?.data?.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');

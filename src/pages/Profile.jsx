@@ -171,7 +171,7 @@ function Profile() {
   // 6. ส่วนการแสดงผล (UI / JSX)
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-[#00A693]/10 to-gray-50 flex justify-center py-12 px-4 sm:px-6 font-body pb-24">
-      <div className="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 relative overflow-hidden">
+      <div className="w-full max-w-5xl mx-auto bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 relative overflow-hidden">
         
         {/* --- แบนเนอร์หัวโปรไฟล์ --- */}
         <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-r from-[#00A693] to-[#007b6c]"></div>
