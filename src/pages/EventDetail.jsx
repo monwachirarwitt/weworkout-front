@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
 import useAuthStore from '../store/authStore'; // 💥 1. อิมพอร์ต Store ของเรามาใช้
+import { io } from 'socket.io-client';
 
 function EventDetail() {
   const { id } = useParams(); 
@@ -15,7 +16,28 @@ function EventDetail() {
   const [newComment, setNewComment] = useState(''); 
   const [loading, setLoading] = useState(true);
 
+  // ตั้งค่า Socket.IO เมื่อเข้ามาที่หน้านี้
+  useEffect(() => {
+    if (!id) return;
 
+    const socket = io('http://localhost:8000');
+
+    // เมื่อเชื่อมต่อสำเร็จ ให้ส่งคำขอเข้าห้องแชทของ Event นี้
+    socket.on('connect', () => {
+      socket.emit('join_room', id);
+    });
+
+    // รอรับข้อความใหม่
+    socket.on('new_comment', (newCommentData) => {
+      // เอาคอมเมนต์ใหม่ไปต่อท้ายคอมเมนต์เดิมที่มีอยู่
+      setComments((prevComments) => [...prevComments, newCommentData]);
+    });
+
+    // ตัดการเชื่อมต่อเมื่อออกจากหน้านี้
+    return () => {
+      socket.disconnect();
+    };
+  }, [id]);
 
   //พอหน้าจอวาดเสร็จปุ๊บ โค้ดชุดนี้จะทำงานทันทีเพื่อเช็กว่า "เฮ้ย! คนที่เข้ามาเนี่ย มีบัตรผ่าน (Token) หรือเปล่า?"
   useEffect(() => {
@@ -89,10 +111,6 @@ function EventDetail() {
 
       // เมื่อส่งสำเร็จ: ล้างช่องพิมพ์ให้ว่างเปล่าเหมือนเดิม เตรียมพร้อมรับข้อความถัดไป
       setNewComment(''); 
-
-      // ทำการรีโหลดหน้าจอใหม่ เพื่อดึงข้อมูลคอมเมนต์ล่าสุดจาก Database มาโชว์บนหน้าเว็บ
-      // (ถ้าใช้ React-Query ในอนาคต เราจะไม่ต้องสั่งรีโหลดแบบนี้แล้วครับ)
-      window.location.reload(); 
 
     } catch (error) {
       // หากส่งไม่สำเร็จ (เช่น เน็ตหลุด หรือ Token หมดอายุ) ให้แจ้งเตือน Error
