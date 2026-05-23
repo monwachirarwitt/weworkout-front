@@ -12,22 +12,40 @@ function Navbar() {
   const displayName = user?.name || 'Athletic User';
   const profileImageUrl = user?.profileImageUrl || '';
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
-    // 🌟 1. ตัวครอบ (Wrapper): ดันลงมาจากขอบจอบน (top-4) และเว้นขอบซ้ายขวา (px-4)
-    <div className=" sticky top-4 z-50 px-4 flex justify-center w-full max-w-7xl mx-auto shrink-0 pointer-events-none">
+    <div className="sticky top-4 z-50 px-4 flex justify-center w-full max-w-7xl mx-auto shrink-0 pointer-events-none">
 
-      {/* 🌟 2. ตัว Navbar: เปลี่ยนเป็นทรงแคปซูล (rounded-full) เพิ่มเงา (shadow-lg) และเอฟเฟกต์กระจก (backdrop-blur-lg) */}
-      <nav className="pointer-events-auto bg-surface-container-lowest/80 backdrop-blur-lg border border-outline-variant/30 rounded-full shadow-lg shadow-gray-200/20 px-6 h-[60px] flex items-center justify-center min-w-[240px] transition-all duration-300">
+      {/* 💥 ปรับความสูง (h) และระยะขอบซ้ายขวา (px) ให้กระชับขึ้นบนจอมือถือ */}
+      <nav className="pointer-events-auto w-full max-w-4xl bg-surface-container-lowest/80 backdrop-blur-lg border border-outline-variant/30 rounded-full shadow-lg shadow-gray-200/20 px-4 md:px-6 h-[56px] md:h-[64px] flex items-center justify-between transition-all duration-300">
 
-        <Link to="/" className="flex items-center gap-2.5 group">
-          {/* 🌟 3. กรอบโลโก้: ปรับให้มนกลมกลืนไปกับ Navbar (rounded-full) */}
-          <div className="bg-primary p-2 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-md shadow-primary/30 flex items-center justify-center">
-            <span className="material-symbols-outlined text-white text-[20px] md:text-[24px]">fitness_center</span>
+        {/* --- โซนซ้าย: Logo --- */}
+        <Link to="/" className="flex items-center gap-2 md:gap-2.5 group">
+          <div className="bg-primary p-1.5 md:p-2 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-md shadow-primary/30 flex items-center justify-center">
+            <span className="material-symbols-outlined text-white text-[18px] md:text-[24px]">fitness_center</span>
           </div>
-          <span className="font-headline font-black text-xl md:text-2xl text-primary-container tracking-tight">
+          {/* 💥 เอาคลาส hidden ออก! ให้มือถือเห็นคำว่า WeWorkout ด้วย แต่ปรับฟอนต์เป็น text-lg */}
+          <span className="font-headline font-black text-lg md:text-2xl text-primary-container tracking-tight">
             WeWorkout
           </span>
         </Link>
+
+        {/* --- โซนขวา: Profile & Logout --- */}
+        <div className="flex items-center gap-3 md:gap-4">
+          {/* 💥 ปุ่ม Logout ปรับให้พอดีนิ้วกดบนมือถือ */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-error/10 text-error hover:bg-error hover:text-white transition-all duration-300 shadow-sm"
+            title="Logout"
+          >
+            <span className="material-symbols-outlined text-[18px] md:text-[20px]">logout</span>
+          </button>
+
+        </div>
 
       </nav>
 

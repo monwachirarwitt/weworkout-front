@@ -42,8 +42,19 @@ function MyActivities() {
     fetchMyActivities();
   }, [navigate, token, currentUser?.id]);
 
+  // ฟังก์ชันเลือกรูปหน้าปกตามหมวดหมู่กีฬา
+  const getCoverImage = (category) => {
+    const images = {
+      'Football': 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=800&auto=format&fit=crop',
+      'Basketball': 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=800&auto=format&fit=crop',
+      'Running': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=800&auto=format&fit=crop',
+      'Fitness': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop'
+    };
+    return images[category] || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop';
+  };
+
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 relative overflow-hidden font-body pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 relative overflow-hidden font-body pb-20">
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-16">
 
@@ -88,7 +99,7 @@ function MyActivities() {
                   {/* รูปปก (ดึงจาก Data ที่ User อัปโหลด) */}
                   <div className="relative h-28 sm:h-36 overflow-hidden bg-gray-100">
                     {/* ⚠️ ตรง event.image ให้เช็กให้ตรงกับชื่อฟิลด์ใน Database ของคุณ */}
-                    <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={event.imgEvent || getCoverImage(event.category)} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
 
                     <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg text-[10px] font-black text-primary uppercase tracking-wider shadow-sm">
                       {event.category || 'SPORT'}

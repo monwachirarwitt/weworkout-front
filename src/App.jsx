@@ -1,6 +1,5 @@
 import { useEffect } from 'react'; // 💥 1. อิมพอร์ต useEffect
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar'; 
 import BottomNavigation from './components/BottomNavigation';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -22,8 +21,6 @@ function App() {
 
   return (
     <div className="w-full max-w-7xl mx-auto min-h-screen bg-background relative flex flex-col">
-      <Navbar /> 
-      
       <main className="flex-1 pb-20 md:pb-0">
         <Routes>
           <Route path="/" element={<Navigate to="/activities" replace />} /> 

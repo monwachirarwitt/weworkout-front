@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
-import useAuthStore from '../store/authStore'; 
-import { uploadImage } from '../utils/upload'; 
+import useAuthStore from '../store/authStore';
+import { uploadImage } from '../utils/upload';
 
 function CreateActivity() {
   const navigate = useNavigate();
@@ -26,14 +26,15 @@ function CreateActivity() {
     eventDate: '', 
     startTime: '', 
     endTime: '', 
-    category: 'Football', // ค่าเริ่มต้นเป็นฟุตบอล
+    category: '', // ค่าเริ่มต้นว่างไว้ให้พิมพ์เอง
     maxParticipants: ''
   });
+
+  const [loading, setLoading] = useState(false);
 
   // 📸 State สำหรับรูปภาพพรีวิวและสถานะการอัปโหลด
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,6 +49,7 @@ function CreateActivity() {
     }
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // เริ่มโหมด Loading
@@ -60,7 +62,7 @@ function CreateActivity() {
         imgEventUrl = await uploadImage(selectedFile);
       }
 
-      // 🚀 เตรียมข้อมูลส่งหลังบ้าน (imgEvent จะเป็น null ถ้าไม่ได้อัปโหลดรูป)
+      // 🚀 เตรียมข้อมูลส่งหลังบ้าน
       const payload = { 
         ...formData, 
         maxParticipants: Number(formData.maxParticipants), 
@@ -82,7 +84,7 @@ function CreateActivity() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 flex items-center justify-center py-12 px-4 relative overflow-hidden font-body">
+    <div className="min-h-screen bg-gradient-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 flex items-center justify-center py-12 px-4 relative overflow-hidden font-body">
       
       {/* สติกเกอร์ตกแต่งพื้นหลัง */}
       <div className="absolute top-10 left-10 lg:left-32 w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden -rotate-12 opacity-70 shadow-2xl pointer-events-none hidden md:block border-4 border-white/50">
@@ -117,7 +119,7 @@ function CreateActivity() {
               <div className="text-center text-on-surface-variant group-hover:text-primary transition-colors flex flex-col items-center">
                 <span className="material-symbols-outlined text-4xl mb-2">add_photo_alternate</span>
                 <p className="font-bold">Add Cover Photo</p>
-                <p className="text-xs opacity-70 mt-1">Optional. Default category image will be used if skipped.</p>
+                <p className="text-xs opacity-70 mt-1">Please upload an image for your activity.</p>
               </div>
             )}
             <input 
@@ -127,7 +129,7 @@ function CreateActivity() {
               onChange={handleFileChange} 
             />
           </div>
-          
+
           {/* ชื่อกิจกรรม */}
           <div>
             <label className="block font-bold text-on-background mb-1">Activity Title</label>
@@ -197,15 +199,11 @@ function CreateActivity() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block font-bold text-on-background mb-1">Category</label>
-              <select 
-                name="category" onChange={handleChange} 
-                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
-              >
-                <option value="Football">Football</option>
-                <option value="Fitness">GYM</option> {/* ✅ แก้จาก Badminton เป็น Fitness */}
-                <option value="Basketball">Basketball</option>
-                <option value="Running">Running</option>
-              </select>
+              <input 
+                type="text" name="category" required onChange={handleChange} 
+                placeholder="e.g. Football, Gym, Board Game" 
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+              />
             </div>
             <div>
               <label className="block font-bold text-on-background mb-1">Max Participants</label>
