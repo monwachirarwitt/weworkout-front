@@ -17,14 +17,14 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault(); // ป้องกันไม่ให้ Browser รีเฟรชหน้าจอตอนกดปุ่ม Submit
     setError('');       // ล้างข้อความ Error เดิมทิ้งก่อนเริ่มตรวจสอบใหม่
-    
+
     try {
       // ส่งคำขอ Login ไปที่ API Backend
       const response = await axios.post('/auth/login', { email, password });
-      
+
       // เมื่อสำเร็จ: เรียกฟังก์ชัน login(token) เพื่อเก็บ Token เข้า Store และ LocalStorage
       login(response.data.token);
-      
+
       // เมื่อบันทึกสำเร็จ: ส่งผู้ใช้ไปที่หน้า Find Activities ทันที
       navigate('/activities');
     } catch (error) {
@@ -60,11 +60,6 @@ function Login() {
             <h1 className="font-headline font-extrabold text-6xl text-on-background leading-tight mb-8">
               Are you ready <span className="text-primary">to exercise with your new friends?</span>
             </h1>
-
-            <p className="text-on-surface-variant text-xl max-w-md leading-relaxed mb-12">
-              เข้าถึงโปรแกรมส่วนตัว ติดตามความก้าวหน้า และเข้าร่วมสังคมของคนรักสุขภาพ
-            </p>
-
             {/* ส่วนแสดงรูปภาพและ Metrics เสมือนจริง */}
             <div className="relative w-full aspect-[4/3] rounded-[2rem] overflow-hidden shadow-2xl border border-outline-variant/10 bg-surface-container-lowest">
               <img
@@ -122,7 +117,6 @@ function Login() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center px-1">
                     <label className="block text-sm font-bold text-on-surface-variant" htmlFor="password">Password</label>
-                    <span className="text-xs font-bold text-primary cursor-pointer">Forgot?</span>
                   </div>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none material-symbols-outlined text-on-surface-variant text-xl">lock</span>
