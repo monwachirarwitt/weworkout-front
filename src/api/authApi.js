@@ -7,15 +7,15 @@ import axios from '../config/axios';
 
 // ล็อกอิน
 export const login = (email, password) => {
-  return axios.post('/auth/login', { email, password });
+  return axios.post('/api/auth/login', { email, password });
 };
 
 // สมัครสมาชิก
 export const register = (name, email, password) => {
-  return axios.post('/auth/register', { name, email, password });
+  return axios.post('/api/auth/register', { name, email, password });
 };
 
 // ดึงข้อมูล user ที่ล็อกอินอยู่
 export const getMe = () => {
-  return axios.get('/auth/me');
+  return axios.get('/api/auth/me');
 };
