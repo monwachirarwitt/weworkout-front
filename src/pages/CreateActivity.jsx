@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../config/axios';
+import * as eventApi from '../api/eventApi';
 import useAuthStore from '../store/authStore';
 import { uploadImage } from '../utils/upload';
 
@@ -70,9 +70,7 @@ function CreateActivity() {
         imgEvent: imgEventUrl 
       };
       
-      await axios.post('/event', payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await eventApi.createEvent(payload);
       
       alert('🎉 Activity created successfully!');
       navigate('/'); 

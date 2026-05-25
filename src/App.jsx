@@ -26,8 +26,8 @@ function App() {
           <Route path="/" element={<Navigate to="/activities" replace />} />
           <Route path="/activities" element={<FindActivities />} />
           <Route path="/my-activities" element={<MyActivities />} />
-          <Route path="/auth/login" element={<Login />} />
-          <Route path="/auth/registers" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registers" element={<Register />} />
           <Route path="/event/:id" element={<EventDetail />} />
           <Route path="/create" element={<CreateActivity />} />
           <Route path="/profile" element={<Profile />} />

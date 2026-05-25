@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from '../config/axios'; // ตัวจัดการการส่ง Request ไปหา Backend
-import useAuthStore from '../store/authStore'; // Store สำหรับจัดการสถานะการล็อกอิน (Global State)
+import * as authApi from '../api/authApi';
+import useAuthStore from '../store/authStore';
 
 function Login() {
   // --- [STATE MANAGEMENT] ---
@@ -20,7 +20,7 @@ function Login() {
 
     try {
       // ส่งคำขอ Login ไปที่ API Backend
-      const response = await axios.post('/auth/login', { email, password });
+      const response = await authApi.login(email, password);
 
       // เมื่อสำเร็จ: เรียกฟังก์ชัน login(token) เพื่อเก็บ Token เข้า Store และ LocalStorage
       login(response.data.token);

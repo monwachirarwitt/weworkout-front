@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from '../config/axios';
+import * as eventApi from '../api/eventApi';
 import useAuthStore from '../store/authStore';
 import { io } from 'socket.io-client';
 
@@ -48,14 +48,10 @@ function EventDetail() {
 
     const fetchData = async () => {
       try {
-        const eventRes = await axios.get(`/event/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const eventRes = await eventApi.getEvent(id);
         setEvent(eventRes.data);
 
-        const commentRes = await axios.get(`/event/${id}/comments`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const commentRes = await eventApi.getComments(id);
         setComments(commentRes.data);
 
       } catch (error) {
@@ -70,7 +66,7 @@ function EventDetail() {
 
   const handleJoin = async () => {
     try {
-      await axios.post(`/event/${id}/join`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await eventApi.joinEvent(id);
       alert('🎉 Request sent successfully! Waiting for host approval.');
       window.location.reload();
     } catch (error) {
@@ -83,10 +79,7 @@ function EventDetail() {
     if (!newComment.trim()) return;
 
     try {
-      await axios.post(`/event/${id}/comments`,
-        { message: newComment },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await eventApi.addComment(id, newComment);
       setNewComment('');
     } catch (error) {
       alert('❌ Failed to send comment: ' + (error.response?.data?.error || error.message));
@@ -95,10 +88,7 @@ function EventDetail() {
 
   const handleManageParticipant = async (participantId, status) => {
     try {
-      await axios.put(`/event/${id}/participants/${participantId}`,
-        { status: status },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await eventApi.manageParticipant(id, participantId, status);
       window.location.reload();
     } catch (error) {
       alert('❌ Failed to update status: ' + (error.response?.data?.error || error.message));
@@ -108,9 +98,7 @@ function EventDetail() {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this activity? This cannot be undone.")) {
       try {
-        await axios.delete(`/event/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await eventApi.deleteEvent(id);
         alert('🗑️ Activity deleted successfully!');
         navigate('/');
       } catch (error) {

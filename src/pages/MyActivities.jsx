@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../config/axios';
+import * as eventApi from '../api/eventApi';
 import useAuthStore from '../store/authStore';
 
 function MyActivities() {
@@ -23,9 +23,7 @@ function MyActivities() {
 
     const fetchMyActivities = async () => {
       try {
-        const response = await axios.get('/event', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await eventApi.getEvents();
 
         // 🧠 กรองเฉพาะ Event ที่เราเป็นเจ้าของ
         const allEvents = response.data.events || response.data || [];

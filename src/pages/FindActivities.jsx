@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../config/axios';
+import * as eventApi from '../api/eventApi';
 import useAuthStore from '../store/authStore';
 
 function FindActivities() {
@@ -27,9 +27,7 @@ function FindActivities() {
 
     const fetchEvents = async () => {
       try {
-        const response = await axios.get('/event', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await eventApi.getEvents();
 
         // เก็บข้อมูลที่ได้ลงใน State (รองรับทั้งรูปแบบ Object และ Array)
         const eventData = response.data.events || response.data || [];

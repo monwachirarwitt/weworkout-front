@@ -1,7 +1,7 @@
 // 1. อิมพอร์ตเครื่องมือสร้าง "โกดังข้อมูล" (Store) จาก Zustand
 import { create } from 'zustand';
-// 2. อิมพอร์ต axios ที่เราตั้งค่าไว้แล้ว (ตัวที่คอยแนบ Token ไปกับ Header อัตโนมัติเวลาคุยกับหลังบ้าน)
-import axios from '../config/axios';
+// 2. อิมพอร์ต authApi สำหรับยิง API ที่เกี่ยวกับ Authentication
+import * as authApi from '../api/authApi';
 
 /**
  * การสร้าง Store ด้วย Zustand
@@ -66,7 +66,7 @@ const useAuthStore = create((set, get) => ({
     
     try {
       // 🎯 แผน A: ลองยิง API ไปถามหลังบ้านแบบตรงไปตรงมา
-      const response = await axios.get('/auth/me');
+      const response = await authApi.getMe();
       
       // จัดรูปแบบข้อมูล (เผื่อหลังบ้านส่งมาเป็น { user: {...} } หรือส่งแค่ Object ตรงๆ)
       const userData = response.data.user ? response.data.user : response.data;

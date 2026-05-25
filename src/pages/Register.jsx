@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from '../config/axios';
+import * as authApi from '../api/authApi';
 
 function Register() {
   const [name, setName] = useState('');
@@ -22,7 +22,7 @@ const handleRegister = async (e) => {
 
     try {
       // 2. ยิง API ไปหลังบ้าน
-      await axios.post('/auth/register', { name, email, password });
+      await authApi.register(name, email, password);
       
       // 3. ถ้าสำเร็จ แจ้งเตือนและพากลับไปหน้า Login
       alert('🎉 สมัครสมาชิกสำเร็จ! ไปล็อกอินกันเลย!');

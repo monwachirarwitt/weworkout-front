@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../config/axios';
+import * as userApi from '../api/userApi';
 import { uploadImage } from '../utils/upload';
 import useAuthStore from '../store/authStore';
 
@@ -56,6 +56,7 @@ function Profile() {
     } else {
       setBmi(null);
     }
+
   };
 
   const handleFileChange = (e) => {
@@ -95,9 +96,7 @@ function Profile() {
         profileImageUrl: profileImageUrl || null
       };
 
-      const response = await axios.put('/user/profile', payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await userApi.updateProfile(payload);
 
       alert('🎉 Profile updated successfully!');
 
