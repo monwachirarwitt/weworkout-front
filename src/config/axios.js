@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // ตั้งค่าให้ยิงไปที่พอร์ต 8000 ของหลังบ้านเราเสมอ
 const axiosInstance = axios.create({
-  baseURL: 'https://weworkout-back.onrender.com/api',
+  baseURL: 'https://weworkout-back.onrender.com',
 });
 
 // แนบ Token ไปกับ Header อัตโนมัติเวลาคุยกับหลังบ้าน (ตามที่โค้ดส่วนอื่นสมมติไว้)
