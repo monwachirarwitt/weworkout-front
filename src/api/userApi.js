@@ -7,5 +7,5 @@ import axios from '../config/axios';
 
 // อัปเดตข้อมูล profile
 export const updateProfile = (payload) => {
-  return axios.put('/user/profile', payload);
+  return axios.put('/api/user/profile', payload);
 };
