@@ -15,17 +15,17 @@ function CreateActivity() {
     }
   }, [token, navigate]); //รายการสิ่งที่ต้องจับตามอง 
   //ถ้า ไม่ใส่ หรือใส่เป็น [] (ว่างๆ):
-// มันจะเช็คแค่ "ตอนโหลดหน้าเว็บครั้งแรกครั้งเดียว" เท่านั้น ถ้าหลังจากนั้น token หายไป ระบบก็จะไม่ยอมเตะผู้ใช้คนนั้นออกจนกว่าเขาจะกด Refresh หน้าเว็บเองครับ ซึ่งมันไม่ปลอดภัย
+  // มันจะเช็คแค่ "ตอนโหลดหน้าเว็บครั้งแรกครั้งเดียว" เท่านั้น ถ้าหลังจากนั้น token หายไป ระบบก็จะไม่ยอมเตะผู้ใช้คนนั้นออกจนกว่าเขาจะกด Refresh หน้าเว็บเองครับ ซึ่งมันไม่ปลอดภัย
 
   // 📝 กระปุกเก็บข้อมูลฟอร์ม
   const [formData, setFormData] = useState({
-    title: '', 
-    description: '', 
-    locationName: '', 
+    title: '',
+    description: '',
+    locationName: '',
     locationUrl: '',
-    eventDate: '', 
-    startTime: '', 
-    endTime: '', 
+    eventDate: '',
+    startTime: '',
+    endTime: '',
     category: '', // ค่าเริ่มต้นว่างไว้ให้พิมพ์เอง
     maxParticipants: ''
   });
@@ -45,7 +45,7 @@ function CreateActivity() {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
-      setPreviewImage(URL.createObjectURL(file)); 
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
 
@@ -63,19 +63,22 @@ function CreateActivity() {
       }
 
       // 🚀 เตรียมข้อมูลส่งหลังบ้าน
-      const payload = { 
-        ...formData, 
-        maxParticipants: Number(formData.maxParticipants), 
+      const payload = {
+        ...formData,
+        maxParticipants: Number(formData.maxParticipants),
         eventDate: `${formData.eventDate}T00:00:00.000Z`,
-        imgEvent: imgEventUrl 
+        imgEvent: imgEventUrl
       };
-      
+
       await eventApi.createEvent(payload);
-      
+
       alert('🎉 Activity created successfully!');
-      navigate('/'); 
+      navigate('/');
     } catch (error) {
-      alert('❌ Failed to create activity: ' + (error.response?.data?.error || error.message));
+      console.dir(error.response?.data);
+      console.log(error);
+
+      alert('❌ Failed to create activity: ' + (error.response?.data?.error || error.response?.data?.message || error.message));
     } finally {
       setLoading(false); // ปิดโหมด Loading
     }
@@ -83,7 +86,7 @@ function CreateActivity() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#00A693]/20 via-[#F4F7F9] to-[#1B5E20]/10 flex items-center justify-center py-12 px-4 relative overflow-hidden font-body">
-      
+
       {/* สติกเกอร์ตกแต่งพื้นหลัง */}
       <div className="absolute top-10 left-10 lg:left-32 w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden -rotate-12 opacity-70 shadow-2xl pointer-events-none hidden md:block border-4 border-white/50">
         <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=600&auto=format&fit=crop" alt="Basketball" className="w-full h-full object-cover" />
@@ -97,9 +100,9 @@ function CreateActivity() {
 
       {/* 📦 กล่องฟอร์มหลัก */}
       <div className="relative z-10 w-full max-w-[650px] mx-auto bg-surface-container-lowest p-8 md:p-12 rounded-[2rem] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-outline-variant/20">
-        
+
         <h2 className="text-3xl font-headline font-black text-primary text-center mb-8">Create Activity</h2>
-        
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
           {/* 📸 ส่วนอัปโหลดรูปปกกิจกรรม (Custom Cover) */}
@@ -120,30 +123,30 @@ function CreateActivity() {
                 <p className="text-xs opacity-70 mt-1">Please upload an image for your activity.</p>
               </div>
             )}
-            <input 
-              type="file" 
-              className="absolute inset-0 opacity-0 cursor-pointer" 
-              accept="image/*" 
-              onChange={handleFileChange} 
+            <input
+              type="file"
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              accept="image/*"
+              onChange={handleFileChange}
             />
           </div>
 
           {/* ชื่อกิจกรรม */}
           <div>
             <label className="block font-bold text-on-background mb-1">Activity Title</label>
-            <input 
-              type="text" name="title" required onChange={handleChange} 
-              placeholder="e.g. Casual 7-a-side Football" 
-              className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+            <input
+              type="text" name="title" required onChange={handleChange}
+              placeholder="e.g. Casual 7-a-side Football"
+              className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
             />
           </div>
 
           {/* รายละเอียด */}
           <div>
             <label className="block font-bold text-on-background mb-1">Description</label>
-            <textarea 
-              name="description" rows="3" onChange={handleChange} 
-              placeholder="Share some details with your friends..." 
+            <textarea
+              name="description" rows="3" onChange={handleChange}
+              placeholder="Share some details with your friends..."
               className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
             ></textarea>
           </div>
@@ -152,18 +155,18 @@ function CreateActivity() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block font-bold text-on-background mb-1">Location Name</label>
-              <input 
-                type="text" name="locationName" required onChange={handleChange} 
+              <input
+                type="text" name="locationName" required onChange={handleChange}
                 placeholder="e.g. Lumphini Park"
-                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
               />
             </div>
             <div>
               <label className="block font-bold text-on-background mb-1">Google Maps URL</label>
-              <input 
-                type="url" name="locationUrl" required onChange={handleChange} 
+              <input
+                type="url" name="locationUrl" required onChange={handleChange}
                 placeholder="https://maps.google.com/..."
-                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
               />
             </div>
           </div>
@@ -172,23 +175,23 @@ function CreateActivity() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div>
               <label className="block font-bold text-on-background mb-1">Date</label>
-              <input 
-                type="date" name="eventDate" required onChange={handleChange} 
-                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-on-surface-variant" 
+              <input
+                type="date" name="eventDate" required onChange={handleChange}
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-on-surface-variant"
               />
             </div>
             <div>
               <label className="block font-bold text-on-background mb-1">Start Time</label>
-              <input 
-                type="time" name="startTime" required onChange={handleChange} 
-                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-on-surface-variant" 
+              <input
+                type="time" name="startTime" required onChange={handleChange}
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-on-surface-variant"
               />
             </div>
             <div>
               <label className="block font-bold text-on-background mb-1">End Time</label>
-              <input 
-                type="time" name="endTime" required onChange={handleChange} 
-                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-on-surface-variant" 
+              <input
+                type="time" name="endTime" required onChange={handleChange}
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-on-surface-variant"
               />
             </div>
           </div>
@@ -197,29 +200,28 @@ function CreateActivity() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block font-bold text-on-background mb-1">Category</label>
-              <input 
-                type="text" name="category" required onChange={handleChange} 
-                placeholder="e.g. Football, Gym, Board Game" 
-                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+              <input
+                type="text" name="category" required onChange={handleChange}
+                placeholder="e.g. Football, Gym, Board Game"
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
               />
             </div>
             <div>
               <label className="block font-bold text-on-background mb-1">Max Participants</label>
-              <input 
-                type="number" name="maxParticipants" required onChange={handleChange} min="2" 
-                placeholder="e.g. 10" 
-                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" 
+              <input
+                type="number" name="maxParticipants" required onChange={handleChange} min="2"
+                placeholder="e.g. 10"
+                className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
               />
             </div>
           </div>
 
           {/* ปุ่มกดสร้างกิจกรรม */}
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
-            className={`w-full p-4 mt-6 rounded-xl font-headline font-bold text-lg transition-all flex items-center justify-center gap-2 ${
-              loading ? 'bg-outline-variant text-on-surface-variant cursor-not-allowed' : 'bg-secondary text-white hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-secondary/30'
-            }`}
+            className={`w-full p-4 mt-6 rounded-xl font-headline font-bold text-lg transition-all flex items-center justify-center gap-2 ${loading ? 'bg-outline-variant text-on-surface-variant cursor-not-allowed' : 'bg-secondary text-white hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-secondary/30'
+              }`}
           >
             {loading ? (
               <>
