@@ -52,6 +52,12 @@ function CreateActivity() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.startTime >= formData.endTime) {
+      alert('เวลาเริ่มกิจกรรมต้องมาก่อนเวลาสิ้นสุด');
+      return;
+    }
+
     setLoading(true); // เริ่มโหมด Loading
 
     try {
@@ -66,7 +72,7 @@ function CreateActivity() {
       const payload = {
         ...formData,
         maxParticipants: Number(formData.maxParticipants),
-        eventDate: `${formData.eventDate}T00:00:00.000Z`,
+        eventDate: formData.eventDate,
         imgEvent: imgEventUrl
       };
 
@@ -201,10 +207,18 @@ function CreateActivity() {
             <div>
               <label className="block font-bold text-on-background mb-1">Category</label>
               <input
-                type="text" name="category" required onChange={handleChange}
+                list="sports-suggestions"
+                name="category" required onChange={handleChange} value={formData.category}
                 placeholder="e.g. Football, Gym, Board Game"
                 className="w-full p-3 rounded-xl border border-outline-variant/50 bg-background/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
               />
+              <datalist id="sports-suggestions">
+                <option value="Running" />
+                <option value="Gym" />
+                <option value="Badminton" />
+                <option value="Football" />
+                <option value="Yoga" />
+              </datalist>
             </div>
             <div>
               <label className="block font-bold text-on-background mb-1">Max Participants</label>

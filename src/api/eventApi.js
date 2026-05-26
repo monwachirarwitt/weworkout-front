@@ -7,7 +7,7 @@ import axios from '../config/axios';
 
 // ดึงรายการ event ทั้งหมด
 export const getEvents = () => {
-  return axios.get('/event');
+  return axios.get('/api/event');
 };
 
 // ดึงข้อมูล event เดียว
